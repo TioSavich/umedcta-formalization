@@ -55,7 +55,7 @@
 run_cbo_mult(N, S, Base, FinalTotal, History) :-
     % Convert inputs to recollection structures
     integer_to_recollection(N, N_Rec),
-    integer_to_recollection(S, S_Rec),
+    integer_to_recollection(S, _S_Rec),
     integer_to_recollection(Base, Base_Rec),
     integer_to_recollection(0, Zero_Rec),
     
@@ -101,7 +101,7 @@ predecessor_grounded(N, Pred) :-
     recollection_to_integer(Pred_Rec, Pred).
 
 % run/4 is the main recursive loop of the state machine.
-run(state(q_accept, Gs, _, _), Base_Rec, Acc, FinalHistory) :-
+run(state(q_accept, Gs, _, _), _Base_Rec, Acc, FinalHistory) :-
     calculate_total_grounded(Gs, Total),
     format(string(Interpretation), 'Final Tally. Total = ~w.', [Total]),
     HistoryEntry = step(q_accept, Gs, Interpretation),

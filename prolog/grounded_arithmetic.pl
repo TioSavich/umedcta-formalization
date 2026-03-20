@@ -104,7 +104,7 @@ subtract_grounded(recollection(HistoryM), recollection(HistoryS), recollection(H
 %
 %       Multiplication is repeated addition - adding A to itself B times.
 %       This captures the embodied understanding of multiplication as iteration.
-multiply_grounded(A, recollection([]), Zero) :-
+multiply_grounded(_A, recollection([]), Zero) :-
     zero(Zero),
     incur_cost(inference).
 

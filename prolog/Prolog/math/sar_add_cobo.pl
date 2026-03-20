@@ -48,7 +48,7 @@ run_cobo(A, B, FinalSum, History) :-
     incur_cost(inference),
     
     % Convert inputs to recollection format for grounded arithmetic
-    integer_to_recollection(A, RecA),
+    integer_to_recollection(A, _RecA),
     integer_to_recollection(B, RecB),
     
     % Decompose B into base-10 components without using arithmetic

@@ -153,7 +153,7 @@ handle_perturbation(perturbation(resource_exhaustion), Goal, Trace, Limit) :-
         run_computation(Goal, Limit)
     ).
 
-handle_perturbation(perturbation(normative_crisis(CrisisGoal, Context)), Goal, Trace, Limit) :-
+handle_perturbation(perturbation(normative_crisis(CrisisGoal, Context)), Goal, _Trace, Limit) :-
     format('Normative crisis detected: ~w violates norms of ~w context.~n', [CrisisGoal, Context]),
     writeln('Initiating context shift reorganization...'),
     % Handle normative crisis through context expansion
@@ -217,7 +217,7 @@ handle_perturbation(perturbation(unknown_operation(Op, PeanoGoal)), Goal, _Trace
         fail
     ).
 
-handle_perturbation(perturbation(incoherence(Commitments)), Goal, Trace, Limit) :-
+handle_perturbation(perturbation(incoherence(Commitments)), Goal, _Trace, Limit) :-
     format('Logical incoherence detected in commitments: ~w~n', [Commitments]),
     writeln('Initiating incoherence resolution...'),
     % Handle logical incoherence through belief revision
@@ -271,7 +271,7 @@ consult_oracle_for_solution(add(A, B, _), StrategyName, Result, Interpretation) 
 %       Handles all arithmetic operations: add, subtract, multiply, divide.
 %
 consult_oracle_for_solution(object_level:Op_Goal, StrategyName, Result, Interpretation) :-
-    Op_Goal =.. [Op, A, B, _],
+    Op_Goal =.. [Op, _A, _B, _],
     member(Op, [add, subtract, multiply, divide]),
     !,
     consult_oracle_for_solution(Op_Goal, StrategyName, Result, Interpretation).

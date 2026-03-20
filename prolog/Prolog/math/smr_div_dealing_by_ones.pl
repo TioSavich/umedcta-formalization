@@ -74,7 +74,7 @@ transition(state(q_init, T, Gs, Idx), [T, N], state(q_loop_deal, T, Gs, Idx), In
     incur_cost(initialization).
 
 % In q_loop_deal, deal one item to the current group and cycle to the next.
-transition(state(q_loop_deal, Rem, Gs, Idx), [T, N], state(q_loop_deal, NewRem, NewGs, NewIdx), Interp) :-
+transition(state(q_loop_deal, Rem, Gs, Idx), [_T, N], state(q_loop_deal, NewRem, NewGs, NewIdx), Interp) :-
     Rem > 0,
     NewRem is Rem - 1,
     % Increment value in the list at the current group index.
@@ -87,7 +87,7 @@ transition(state(q_loop_deal, Rem, Gs, Idx), [T, N], state(q_loop_deal, NewRem, 
     incur_cost(iteration).
     
 % If no items remain, transition to the accept state.
-transition(state(q_loop_deal, 0, Gs, Idx), [T, N], state(q_accept, 0, Gs, Idx), Interp) :-
+transition(state(q_loop_deal, 0, Gs, Idx), [_T, _N], state(q_accept, 0, Gs, Idx), Interp) :-
     s(exp_poss(complete_fair_distribution_achieved)),
     Interp = 'Dealing complete.',
     incur_cost(completion).

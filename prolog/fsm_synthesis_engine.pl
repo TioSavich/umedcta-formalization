@@ -45,6 +45,8 @@
 :- use_module(oracle_server).  % NEW: For oracle-backed strategies
 :- use_module(library(lists)).
 
+:- discontiguous peano_to_int/2.
+
 %!      synthesize_strategy_from_oracle(+Goal, +FailedTrace, +TargetResult, +TargetInterpretation) is semidet.
 %
 %       The main entry point for FSM synthesis. Given oracle guidance,
@@ -57,7 +59,7 @@
 %       @param FailedTrace The execution trace of the failed attempt
 %       @param TargetResult The correct result provided by oracle (e.g., 13)
 %       @param TargetInterpretation Natural language description from oracle
-synthesize_strategy_from_oracle(Goal, FailedTrace, TargetResult, TargetInterpretation) :-
+synthesize_strategy_from_oracle(Goal, _FailedTrace, TargetResult, TargetInterpretation) :-
     writeln('    [FSM Synthesis] Beginning synthesis from oracle guidance...'),
     format('      Target Result: ~w~n', [TargetResult]),
     format('      Interpretation: "~w"~n', [TargetInterpretation]),
@@ -355,7 +357,7 @@ synthesize_commutative(A, B, TargetResult,
 %
 %       Validates that the synthesized FSM actually produces the target result
 %       and respects resource limits.
-validate_fsm(FSM, Input1, Input2, TargetResult) :-
+validate_fsm(FSM, _Input1, _Input2, _TargetResult) :-
     % For now, structural validation (execution validation comes later)
     FSM = fsm(StrategyName, States, Transitions),
     is_list(States),
@@ -371,7 +373,7 @@ validate_fsm(FSM, Input1, Input2, TargetResult) :-
 %       and asserts it into the knowledge base.
 %
 %       CRITICAL: This adds to the geological record. No retraction.
-assert_synthesized_strategy(fsm(StrategyName, States, Transitions), Interpretation) :-
+assert_synthesized_strategy(fsm(StrategyName, States, _Transitions), _Interpretation) :-
     % Generate the strategy clause
     StrategyHead = more_machine_learner:run_learned_strategy(A_var, B_var, Result_var, StrategyName, 
                                                              fsm_trace(StrategyName, States)),

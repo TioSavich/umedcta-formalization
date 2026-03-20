@@ -118,7 +118,7 @@ transition(q_error, q_error, maintain_error) :-
 %       Complete state transitions with full state tracking.
 
 % From q_init, decompose T and proceed to analyze the base.
-transition(state(q_init, TB, TO, Q, R, SiB, RiB, T, S), Base,
+transition(state(q_init, _TB, _TO, Q, R, SiB, RiB, T, S), Base,
            state(q_decompose, NewTB, NewTO, Q, R, SiB, RiB, T, S), 
            Interpretation) :-
     s(exp_poss(decomposing_dividend_into_base_components)),

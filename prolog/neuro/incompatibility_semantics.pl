@@ -83,10 +83,13 @@ is_recollection(N, History) :-
     Val is abs(N),
     hermeneutic_calculator:calculate(0, -, Val, _Strategy, N, History).
 is_recollection(N rdiv D, [history(rational, from(N, D))]) :-
-    % Denominator must be a positive integer. We check its recollection status.
-    is_recollection(D, _),
+    % Guard: N and D must be integers (SWI-Prolog's rdiv/2 guarantees this
+    % for canonical rationals, but we must check before recursing to prevent
+    % non-termination on nested rdiv terms from intermediate arithmetic).
     integer(D), D > 0,
-    % Numerator can be any recollected number.
+    integer(N),
+    % Now safe to verify constructive grounding of components.
+    is_recollection(D, _),
     is_recollection(N, _).
 
 % --- Helpers for Rational Arithmetic ---

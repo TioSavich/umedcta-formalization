@@ -108,7 +108,7 @@ transition(q_error, q_error, maintain_error) :-
 %       Complete state transitions with full state tracking.
 
 % From q_init, determine larger and smaller numbers
-transition(state(q_init, A_in, B_in, _, _, _, _, _), Base,
+transition(state(q_init, A_in, B_in, _, _, _, _, _), _Base,
            state(q_determine_order, A, B, 0, A, B, 0, B),
            Interpretation) :-
     s(exp_poss(determining_optimal_number_ordering)),
@@ -208,7 +208,7 @@ final_interpretation(state(q_error, _, _, _, _, _, _, _), 'Error: RMB addition f
 %       Extracts the final result from the execution history.
 extract_result_from_history(History, Result) :-
     last(History, LastStep),
-    (LastStep = step(state(q_accept, A, B, K, AT, BT, 0, 0), _, _) ->
+    (LastStep = step(state(q_accept, A, B, _K, _AT, _BT, 0, 0), _, _) ->
         Result is A + B
     ;
         Result = 'error'

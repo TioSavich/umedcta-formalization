@@ -202,7 +202,7 @@ solve(Goal, CtxIn, CtxOut, I_In, I_Out, [clause(object_level:(Goal:-Body)), trac
 % When an arithmetic operation is attempted but not defined in object_level,
 % throw an unknown_operation perturbation instead of silently failing.
 % Handles both `object_level:Op(...)` and bare `Op(...)` forms.
-solve(Goal, Ctx, Ctx, _I, _I, _) :-
+solve(Goal, Ctx, Ctx, _I_In, _I_Out, _) :-
     % Extract the actual operation from module-qualified or bare goal
     (   Goal = object_level:ActualGoal
     ->  true

@@ -141,7 +141,7 @@ emit_modal_signal(ModalContext) :-
 %!      emit_cognitive_state(+CognitiveState) is det.
 %
 %       Emits a cognitive state signal for learning analysis.
-emit_cognitive_state(CognitiveState) :-
+emit_cognitive_state(_CognitiveState) :-
     incur_cost(inference),
     % Could be extended to emit specific cognitive markers
     true.

@@ -35,6 +35,8 @@
 :- use_module(grounded_arithmetic, [incur_cost/1]).
 :- use_module(incompatibility_semantics, [s/1, comp_nec/1, exp_poss/1]).
 
+:- discontiguous transition/3.
+
 %!      run_commutative_mult(+A:integer, +B:integer, -FinalTotal:integer, -History:list) is det.
 %
 %       Executes the 'Commutative Reasoning' (Repeated Addition) multiplication

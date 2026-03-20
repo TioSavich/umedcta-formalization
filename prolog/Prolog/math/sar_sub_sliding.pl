@@ -38,6 +38,8 @@
 :- use_module(grounded_arithmetic, [incur_cost/1]).
 :- use_module(incompatibility_semantics, [s/1, comp_nec/1, exp_poss/1]).
 
+:- discontiguous transition/4.
+
 %!      run_sliding(+M:integer, +S:integer, -FinalResult:integer, -History:list) is det.
 %
 %       Executes the 'Sliding' (Constant Difference) subtraction strategy for M - S.

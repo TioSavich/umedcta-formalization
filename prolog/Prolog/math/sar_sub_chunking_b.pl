@@ -103,7 +103,7 @@ transition(q_error, q_error, maintain_error) :-
 %!      transition(+State, +Base, -NextState, -Interpretation) is det.
 %
 %       Complete state transitions with full state tracking.
-transition(state(q_init, CurrentValue, Distance, K, TargetBase, InternalTemp, Minuend), Base,
+transition(state(q_init, CurrentValue, Distance, K, _TargetBase, _InternalTemp, Minuend), Base,
            NextState, Interpretation) :-
     % Begin forward chunking
     s(exp_poss(initiating_forward_chunk_calculation)),
@@ -113,7 +113,7 @@ transition(state(q_init, CurrentValue, Distance, K, TargetBase, InternalTemp, Mi
     Interpretation = 'Initialized forward chunking.',
     incur_cost(chunk_initialization).
 
-transition(state(q_forward_chunking, CurrentValue, Distance, K, TargetBase, ChunkSize, Minuend), Base,
+transition(state(q_forward_chunking, CurrentValue, Distance, K, TargetBase, ChunkSize, Minuend), _Base,
            NextState, Interpretation) :-
     NewCurrentValue is CurrentValue + ChunkSize,
     NewDistance is Distance + ChunkSize,

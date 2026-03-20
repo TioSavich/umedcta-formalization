@@ -44,33 +44,36 @@
     list_available_strategies/2
 ]).
 
-% Load the strategy modules directly
-:- use_module(sar_add_cobo, [run_cobo/4]).
-:- use_module(sar_add_chunking, [run_chunking/4]).
-:- use_module(sar_add_rmb, [run_rmb/4]).
-:- use_module(sar_add_rounding, [run_rounding/4]).
+% Load the strategy modules directly (qualified paths to Prolog/math/)
+:- use_module('Prolog/math/sar_add_cobo', [run_cobo/4]).
+:- use_module('Prolog/math/sar_add_chunking', [run_chunking/4]).
+:- use_module('Prolog/math/sar_add_rmb', [run_rmb/4]).
+:- use_module('Prolog/math/sar_add_rounding', [run_rounding/4]).
 
 % Subtraction strategies
-:- use_module(sar_sub_cobo_missing_addend, [run_cobo_ma/4]).
-:- use_module(sar_sub_cbbo_take_away, [run_cbbo_ta/4]).
-:- use_module(sar_sub_decomposition, [run_decomposition/4]).
-:- use_module(sar_sub_rounding, [run_sub_rounding/4]).
-:- use_module(sar_sub_sliding, [run_sliding/4]).
-:- use_module(sar_sub_chunking_a, [run_chunking_a/4]).
-:- use_module(sar_sub_chunking_b, [run_chunking_b/4]).
-:- use_module(sar_sub_chunking_c, [run_chunking_c/4]).
+:- use_module('Prolog/math/sar_sub_cobo_missing_addend', [run_cobo_ma/4]).
+:- use_module('Prolog/math/sar_sub_cbbo_take_away', [run_cbbo_ta/4]).
+:- use_module('Prolog/math/sar_sub_decomposition', [run_decomposition/4]).
+:- use_module('Prolog/math/sar_sub_rounding', [run_sub_rounding/4]).
+:- use_module('Prolog/math/sar_sub_sliding', [run_sliding/4]).
+:- use_module('Prolog/math/sar_sub_chunking_a', [run_chunking_a/4]).
+:- use_module('Prolog/math/sar_sub_chunking_b', [run_chunking_b/4]).
+:- use_module('Prolog/math/sar_sub_chunking_c', [run_chunking_c/4]).
 
 % Multiplication strategies
-:- use_module(smr_mult_c2c, [run_c2c/4]).
-:- use_module(smr_mult_cbo, [run_cbo_mult/5]).
-:- use_module(smr_mult_commutative_reasoning, [run_commutative_mult/4]).
-:- use_module(smr_mult_dr, [run_dr/4]).
+:- use_module('Prolog/math/smr_mult_c2c', [run_c2c/4]).
+:- use_module('Prolog/math/smr_mult_cbo', [run_cbo_mult/5]).
+:- use_module('Prolog/math/smr_mult_commutative_reasoning', [run_commutative_mult/4]).
+:- use_module('Prolog/math/smr_mult_dr', [run_dr/4]).
 
 % Division strategies
-:- use_module(smr_div_cbo, [run_cbo_div/5]).
-:- use_module(smr_div_dealing_by_ones, [run_dealing_by_ones/4]).
-:- use_module(smr_div_idp, [run_idp/5]).
-:- use_module(smr_div_ucr, [run_ucr/4]).
+:- use_module('Prolog/math/smr_div_cbo', [run_cbo_div/5]).
+:- use_module('Prolog/math/smr_div_dealing_by_ones', [run_dealing_by_ones/4]).
+:- use_module('Prolog/math/smr_div_idp', [run_idp/5]).
+:- use_module('Prolog/math/smr_div_ucr', [run_ucr/4]).
+
+% Fraction strategies (Jason's schemes — Steffe's ENS-based fractional reasoning)
+:- use_module('Prolog/math/jason_backup', [run_pfs/5, run_fcs/5]).
 
 % Load the hermeneutic calculator for strategy listing
 :- use_module(hermeneutic_calculator, [list_strategies/2]).
@@ -184,6 +187,19 @@ execute_strategy(Num1, /, Num2, 'IDP', Result, History) :-
 execute_strategy(Num1, /, Num2, 'UCR', Result, History) :-
     smr_div_ucr:run_ucr(Num1, Num2, Result, History).
 
+% Fraction Strategies (Jason's ENS-based schemes)
+execute_strategy(Num, fraction, Den, 'PFS', Result, Trace) :-
+    Whole = unit(1, "Reference Unit"),
+    jason_fsm:run_pfs(Whole, Num, Den, ResultUnit, Trace),
+    ( ResultUnit = unit(ResultValue, _) -> Result = ResultValue ; Result = ResultUnit ).
+
+execute_strategy(OuterFrac, fraction_composition, InnerFrac, 'FCS', Result, Trace) :-
+    Whole = unit(1, "Reference Unit"),
+    OuterFrac = A-B,
+    InnerFrac = C-D,
+    jason_fsm:run_fcs(Whole, A-B, C-D, ResultUnit, Trace),
+    ( ResultUnit = unit(ResultValue, _) -> Result = ResultValue ; Result = ResultUnit ).
+
 % Catch-all for unimplemented strategies
 execute_strategy(_Num1, Op, _Num2, StrategyName, _Result, _History) :-
     throw(error(not_implemented(execute_strategy(Op, StrategyName)),
@@ -201,9 +217,19 @@ decompose_operation(multiply(Num1, Num2), Num1, *, Num2) :-
     integer(Num1), integer(Num2).
 decompose_operation(divide(Num1, Num2), Num1, /, Num2) :-
     integer(Num1), integer(Num2), Num2 \= 0.
+
+% Fraction operations — PFS operates on a unit whole
+decompose_operation(fraction(Num, Den), Num, fraction, Den) :-
+    integer(Num), Num >= 0, integer(Den), Den > 0.
+
+% Fraction composition — FCS finds (A/B) of (C/D) of a unit whole
+decompose_operation(fraction_composition(A-B, C-D), A-B, fraction_composition, C-D) :-
+    integer(A), A >= 0, integer(B), B > 0,
+    integer(C), C >= 0, integer(D), D > 0.
+
 decompose_operation(Op, _, _, _) :-
-    throw(error(type_error(operation, Op), 
-                context(query_oracle/4, 'Operation must be add/subtract/multiply/divide with integer arguments'))).
+    throw(error(type_error(operation, Op),
+                context(query_oracle/4, 'Operation must be add/subtract/multiply/divide/fraction/fraction_composition with valid arguments'))).
 
 %!      extract_interpretation(+StrategyName, +Op, +Num1, +Num2, +Result, +History, -Interpretation) is det.
 %
@@ -239,7 +265,7 @@ extract_interpretation('Chunking', +, Num1, Num2, Result, _History, Interpretati
            'Chunking: Break ~w+~w into decade chunks and ones, combine to get ~w',
            [Num1, Num2, Result]).
 
-extract_interpretation('Rounding', +, Num1, Num2, Result, _History, Interpretation) :-
+extract_interpretation('Rounding', +, _Num1, _Num2, Result, _History, Interpretation) :-
     format(atom(Interpretation),
            'Rounding: Round one number to nearest ten, adjust, result is ~w',
            [Result]).
@@ -260,7 +286,7 @@ extract_interpretation('Decomposition', -, Minuend, Subtrahend, Result, _History
            'Decomposition: Break ~w into parts, subtract ~w from each part, recombine to get ~w',
            [Minuend, Subtrahend, Result]).
 
-extract_interpretation('Sliding', -, Minuend, Subtrahend, Result, _History, Interpretation) :-
+extract_interpretation('Sliding', -, _Minuend, _Subtrahend, Result, _History, Interpretation) :-
     format(atom(Interpretation),
            'Sliding: Adjust both numbers by same amount to simplify, then subtract to get ~w',
            [Result]).
@@ -314,6 +340,19 @@ extract_interpretation('UCR', /, Dividend, Divisor, Result, _History, Interpreta
            'Unit coordination and remainders: Coordinate units in ~w÷~w to get ~w',
            [Dividend, Divisor, Result]).
 
+% Fraction interpretations
+extract_interpretation('PFS', fraction, Num, Den, Result, _History, Interpretation) :-
+    format(atom(Interpretation),
+           'Partitive fractional scheme: Partition the whole into ~w equal parts, disembed one part (1/~w), iterate ~w times to get ~w',
+           [Den, Den, Num, Result]).
+
+extract_interpretation('FCS', fraction_composition, OuterFrac, InnerFrac, Result, _History, Interpretation) :-
+    OuterFrac = A-B,
+    InnerFrac = C-D,
+    format(atom(Interpretation),
+           'Fractional composition scheme: Find ~w/~w of ~w/~w of the whole through metamorphic accommodation (nested partitioning), yielding ~w',
+           [A, B, C, D, Result]).
+
 % Generic fallback
 extract_interpretation(StrategyName, _Op, _Num1, _Num2, Result, _History, Interpretation) :-
     format(atom(Interpretation),
@@ -333,6 +372,7 @@ list_available_strategies(add, ['COBO', 'RMB', 'Chunking', 'Rounding']).
 list_available_strategies(subtract, ['COBO (Missing Addend)', 'CBBO (Take Away)', 'Decomposition', 'Rounding', 'Sliding', 'Chunking A', 'Chunking B', 'Chunking C']).
 list_available_strategies(multiply, ['C2C', 'CBO', 'Commutative Reasoning', 'DR']).
 list_available_strategies(divide, ['Dealing by Ones', 'CBO (Division)', 'IDP', 'UCR']).
+list_available_strategies(fraction, ['PFS', 'FCS']).
 
 % ═══════════════════════════════════════════════════════════════════════
 % ORACLE INTERFACE BOUNDARY

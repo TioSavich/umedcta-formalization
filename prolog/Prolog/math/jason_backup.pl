@@ -21,7 +21,7 @@
  * 
  * 
  */
-:- module(jason, [run_tests/0, debug_run_fcs/0]).
+:- module(jason_fsm, [run_tests/0, debug_run_fcs/0, run_pfs/5, run_fcs/5]).
 :- (   catch(use_module(library(rat)), E, (format('[jason] Optional library "rat" not available: ~w~n', [E]), true)) ).
 
 % =============================================================================
@@ -213,7 +213,7 @@ debug_run_fcs :-
     TheWhole = unit(1, "Reference Unit"),
     V0 = v{whole: TheWhole, a:3, b:4, c:1, d:4},
     format('Debug: V0=~w~n', [V0]),
-    ( fcs_transition(q_start, V0, NS1, V1, Log1, NT1) -> format('q_start -> ~w ; Log=~w NT=~w~n', [NS1, Log1, NT1]) ; writeln('q_start failed') ),
+    ( fcs_transition(q_start, V0, NS1, _V1, Log1, NT1) -> format('q_start -> ~w ; Log=~w NT=~w~n', [NS1, Log1, NT1]) ; writeln('q_start failed') ),
     ( fcs_transition(q_inner_PFS, V0, NS2, V2, Log2, NT2) -> (format('q_inner_PFS -> ~w ; Log=~w NT=~w~n', [NS2, Log2, NT2]), ( get_dict(intermediate_result, V2, IR) -> format('V2.intermediate_result=~w~n',[IR]) ; writeln('V2 has no intermediate_result') )) ; writeln('q_inner_PFS failed') ),
-    ( fcs_transition(q_accommodate, V0, NS3, V3, Log3, NT3) -> format('q_accommodate -> ~w ; Log=~w NT=~w~n', [NS3, Log3, NT3]) ; writeln('q_accommodate failed') ),
+    ( fcs_transition(q_accommodate, V0, NS3, _V3, Log3, NT3) -> format('q_accommodate -> ~w ; Log=~w NT=~w~n', [NS3, Log3, NT3]) ; writeln('q_accommodate failed') ),
     ( fcs_transition(q_outer_PFS, V0, NS4, V4, Log4, NT4) -> (format('q_outer_PFS -> ~w ; Log=~w NT=~w~n', [NS4, Log4, NT4]), ( get_dict(final_result, V4, FR) -> format('V4.final_result=~w~n',[FR]) ; writeln('V4 has no final_result') )) ; writeln('q_outer_PFS failed') ).

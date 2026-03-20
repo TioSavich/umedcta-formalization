@@ -35,6 +35,8 @@
 :- use_module(grounded_arithmetic, [incur_cost/1]).
 :- use_module(incompatibility_semantics, [s/1, comp_nec/1, exp_poss/1]).
 
+:- discontiguous transition/4.
+
 %!      run_cobo_ma(+M:integer, +S:integer, -FinalResult:integer, -History:list) is det.
 %
 %       Executes the 'Counting On by Bases and Ones' (Missing Addend) subtraction

@@ -257,10 +257,14 @@ is_recollection(N, History) :-
 % numerator and denominator are themselves valid recollections.
 % The history records this compositional validation.
 is_recollection(N rdiv D, [history(rational, from(N, D))]) :-
-    % Denominator must be a positive integer. We check its recollection status.
-    is_recollection(D, _),
+    % Guard: N and D must be integers before recursing. SWI-Prolog's canonical
+    % rdiv/2 guarantees integer components, but intermediate arithmetic can
+    % produce nested rdiv terms. Without this guard, is_recollection/2 loops
+    % infinitely on non-integer components.
     integer(D), D > 0,
-    % Numerator can be any recollected number.
+    integer(N),
+    % Now safe to verify constructive grounding of components.
+    is_recollection(D, _),
     is_recollection(N, _).
 
 
