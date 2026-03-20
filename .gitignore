@@ -1,1 +1,17 @@
+# OS
 .DS_Store
+
+# LaTeX build artifacts
+prolog/_minted/
+*.aux
+*.log
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
+# Test output dumps (ephemeral, not source)
+prolog/test_out*.txt
+prolog/test_final*.txt
+
+# IDE
+*.code-workspace

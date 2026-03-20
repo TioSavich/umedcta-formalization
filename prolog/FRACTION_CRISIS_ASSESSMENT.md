@@ -24,7 +24,7 @@ The oracle now speaks "fraction." Two strategies are registered:
 The grounded ENS operations (`grounded_ens_operations.pl`), fraction semantics
 (`fraction_semantics.pl`), normalization, and composition modules are implemented
 and tested. The `jason.pl` modern version uses recollection structures. The
-`jason_backup.pl` (now `jason_fsm`) has the full FSM with traces.
+`jason_fsm.pl` has the full FSM with traces.
 
 ## What's Missing: Three Gaps
 
@@ -46,7 +46,7 @@ The ORR pipeline lives in the Peano/integer world:
 
 The fraction modules live in the recollection/unit world:
 - `grounded_ens_operations.pl` uses `recollection([t,t,t])` structures
-- `jason_backup.pl` uses `unit(Value, History)` with rational arithmetic
+- `jason_fsm.pl` uses `unit(Value, History)` with rational arithmetic
 - `jason.pl` (modern) uses recollection-based ENS
 
 These worlds are not connected through the ORR cycle. The curriculum_processor
@@ -245,7 +245,7 @@ variants may be the path to fraction crises.
 
 Two implementations: the FSM version (now in the oracle) and the grounded version.
 
-- **FSM version (oracle)**: `Prolog/math/jason_backup.pl` — module `jason_fsm`,
+- **FSM version (oracle)**: `Prolog/math/jason_fsm.pl` — module `jason_fsm`,
   `run_pfs/5` (Partitive Fractional Scheme), `run_fcs/5` (Fractional Composition
   Scheme). Uses `unit(Value, History)` with rational arithmetic. Full state
   machine traces. Wired into `oracle_server.pl` as strategies 'PFS' and 'FCS'.

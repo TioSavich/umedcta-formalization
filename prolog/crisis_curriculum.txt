@@ -1,4 +1,14 @@
-# Cognitive Crisis Induction Curriculum
+# Cognitive Crisis Induction Curriculum (Pragmatic Version)
+#
+# PURPOSE: Pragmatic escalation sequence — pushes the system beyond inference
+# thresholds to trigger strategy acquisition. Less philosophical grounding
+# than crisis_curriculum_primordial.txt; useful for quick testing.
+#
+# PEDAGOGICAL NOTE: The numerical choices here matter. Counting to 200 before
+# attempting add(8,5) ensures the counting automaton is well-established.
+# The escalation from counting → addition → multiplication → subtraction
+# mirrors how teachers sequence number tasks to force specific crises.
+#
 # Tasks designed to push the system beyond current inference thresholds
 # to trigger reorganization and strategy bootstrapping
 

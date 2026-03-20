@@ -1,4 +1,15 @@
-# Mathematical Curriculum for Grounded Cognitive Architecture
+# Mathematical Curriculum (Progressive Pedagogical Version)
+#
+# PURPOSE: Gentle cumulative sequence — builds from 1+1 to 5+5, then subtraction.
+# Models the pedagogical approach of a careful teacher who never presents a
+# problem the learner isn't ready for. Contrasts with crisis_curriculum_primordial.txt
+# which deliberately provokes crises through escalation.
+#
+# PEDAGOGICAL NOTE: A teacher who only uses this curriculum never forces a crisis.
+# The learner develops incrementally but never encounters the finite/infinite
+# dialectic. Comparing outcomes from different curricula is one way to test the
+# manuscript's claim that crises are productive.
+#
 # Each line represents a mathematical task that builds upon previous learning
 # The system should progressively develop capabilities through accumulation
 

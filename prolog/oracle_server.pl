@@ -73,7 +73,7 @@
 :- use_module('Prolog/math/smr_div_ucr', [run_ucr/4]).
 
 % Fraction strategies (Jason's schemes — Steffe's ENS-based fractional reasoning)
-:- use_module('Prolog/math/jason_backup', [run_pfs/5, run_fcs/5]).
+:- use_module('Prolog/math/jason_fsm', [run_pfs/5, run_fcs/5]).
 
 % Load the hermeneutic calculator for strategy listing
 :- use_module(hermeneutic_calculator, [list_strategies/2]).
