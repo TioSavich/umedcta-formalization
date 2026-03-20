@@ -68,17 +68,47 @@ accommodation (recursive strategy composition, not flat FSMs).
 
 ## Phase 2: System Architecture Assessment
 
-### [P2-1] Assess relationship between System A and System B
-Write assessment answering: (1) Is meta-interpreter's monological model the right frame?
-(2) Can proves/4 replace or augment solve/4 in the crisis pipeline? (3) Where does
-Arche-Trace interact with each system, and what breaks? (4) What does this tell us about
-the "mathematical skeleton" thesis?
-**Why:** Core intellectual deliverable. Determines whether systems merge, layer, or stay separate.
-**Context:** Author suspects meta-interpreter is philosophically suspect (monological ≠
-intersubjectivity-first). Arche-Trace designed to break formal proofs — breakpoints are
-the interesting part. Three number representations (recollection, Peano, integer) are
-intentional philosophical layers.
-**Depends on:** P1-2 and P1.5-1 (both systems verified running)
+### [P2-1] Assess relationship between System A and System B ✓ DONE
+Written to `prolog/SYSTEM_ASSESSMENT.md`. Key findings:
+- **Don't merge, layer explicitly.** solve/6 models computing, proves/4 models justifying.
+  Merging conflates two activities the manuscript distinguishes.
+- **Meta-interpreter IS monological** but System A doesn't escape it either — the sequent
+  calculus represents intersubjective structure without enacting it.
+- **Arche-Trace marks the skeleton boundary**: proofs about crisis experience, strategy
+  preference, and recognition get erased. These erasure points are where interpretive
+  analysis (LLM, teacher, human judgment) must take over.
+- **Three augmentation points**: post-synthesis normative validation (P2-2), finer crisis
+  classification (P2-3), modal cost unification (P2-4).
+
+### [P2-2] Post-synthesis normative validation
+After System B synthesizes a new strategy, use System A's proves/4 and critique module
+to check that the new clause doesn't create incoherence with existing commitments.
+**Why:** Gives newly learned strategies normative standing, not just procedural correctness.
+**Difficulty:** Medium. Requires translating object_level clauses into sequent form.
+**Depends on:** P2-1
+
+### [P2-3] Finer crisis classification via incompatibility semantics
+Use System A to distinguish resource crises (inefficiency) from normative crises (domain
+mismatch) from bad infinites (oscillation). Drive different ORR responses for each.
+**Why:** Resource crises need efficiency strategies; normative crises need domain expansion;
+bad infinites need qualitatively new concepts.
+**Difficulty:** Medium. Crisis types already exist in both systems; need mapping between them.
+**Depends on:** P2-1
+
+### [P2-4] Unify modal cost models
+Reconcile System B's config.pl cognitive_cost/2 with System A's context-dependent cost
+(compressive=2, expansive=1). Strategies under compressive necessity should cost more.
+**Why:** Single framework for cognitive load tracking across both systems.
+**Difficulty:** Easy. Both cost models already exist; need a shared interface.
+**Depends on:** P2-1
+
+### [P2-5] Document Arche-Trace erasure points
+Catalog exactly which proofs get erased when the Arche-Trace contaminates them. These
+are the formal boundary markers of the skeleton thesis — where formal analysis yields
+to interpretive analysis.
+**Why:** Makes the manuscript's central claim computationally visible.
+**Difficulty:** Easy. Run proofs involving s(I_f), inspect erasure/propagation patterns.
+**Depends on:** P2-1
 
 ## Phase 3: Interactive Exploration
 
