@@ -23,4 +23,3 @@ swipl -l dialectical_engine_test.pl
 
 - `TEST_SUMMARY.md` — Overview of test results
 - `CRITIQUE_IMPLEMENTATION.md` — Notes on critique module implementation
-- `critique_results.txt`, `test_results.txt` — Historical test output

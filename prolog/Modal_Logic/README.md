@@ -1,8 +1,8 @@
 # Modal_Logic/ — Manuscript and LaTeX Appendices
 
 LaTeX sources connecting the Prolog formalization to the UMEDCTA manuscript's
-philosophical claims. Also contains reference documents, dictionaries, and
-analysis tools.
+philosophical claims. Also contains reference documents and the philosophical
+terminology dictionary.
 
 ## Primary documents
 
@@ -12,6 +12,8 @@ analysis tools.
 | `AppendixA_Unified_2.tex` | Current appendix — formal connection to manuscript |
 | `Dictionary.md` / `Dictionary_voice_edit_enhanced.tex` | Philosophical terminology dictionary |
 | `Philosophical_Primer.md` | Primer on the philosophical framework |
+| `Description_Role_of_Formalization.md` | How formalization serves the manuscript argument |
+| `Overview_of_UMEDCA_Manuscript.md` | Executive summary of manuscript structure |
 
 ## Appendix revisions (historical)
 
@@ -29,15 +31,3 @@ analysis tools.
 | `Jason.tex` / `Jason.pdf` | Jason's fractional scheme state machines |
 | `counting.tex` / `counting.pdf` | Counting automaton diagram |
 | `jason_automaton_picture.tex` / `.pdf` | Visual diagram of Jason's PFS/FCS |
-
-## Analysis tools
-
-| File | Purpose |
-|------|---------|
-| `analyze_tex.py` | Python script for analyzing TeX structure |
-| `tex_analysis_report.json` / `.md` | Output of TeX analysis |
-
-## Note
-
-`synthesized_paper.md` is a ChatGPT draft with no philosophical standing.
-Do not surface in any public-facing context (see CLAUDE.md).
