@@ -316,6 +316,74 @@ to make visible exactly where interpretation becomes necessary.
 
 ---
 
+## The skeleton and the animating spirit
+
+This section documents a design intention that is easy to lose track of.
+
+The Prolog code is not trying to be a complete model of mathematical learning.
+It is trying to be a **formal backbone** — a skeleton — that makes certain
+structural facts visible: what crises look like, which strategies resolve them,
+what modal transitions they require, where proofs get erased, and how
+developmental progression unfolds. These are bones.
+
+The animating spirit — the thing that makes the Frankenstein walk — is not more
+Prolog. It is an LLM (or a teacher, or both) that fills the role the oracle
+currently occupies as a lookup table. Consider what an LLM-as-oracle could do
+that `query_oracle/4` cannot:
+
+- **Misunderstand the learner's state** and offer a strategy that doesn't fit,
+  forcing the learner to reject it (genuine intersubjectivity requires the
+  possibility of misunderstanding).
+- **Withhold guidance** when the learner's stress map suggests struggle is still
+  productive — the formal stress threshold becomes a pedagogical signal, not
+  just a counter.
+- **Adapt interpretations** based on the learner's developmental history, not
+  just the current operation. "Count on from the bigger number" means something
+  different to a learner who has just acquired counting-all versus one who has
+  been using COBO for a week.
+- **Notice when the learner's crisis is normative, not procedural** — the child
+  isn't stuck because the algorithm is slow but because negative numbers don't
+  make sense yet. The crisis classification (P2-3) gives the LLM a formal
+  vocabulary for this distinction.
+
+The Prolog skeleton tells the LLM *where to look* (which crisis type, which
+strategies are available, what modal context the learner is in, where proofs
+get erased). The LLM provides *what to say* (the interpretive judgment that
+the formal system cannot make). Neither alone is sufficient.
+
+### Essential limitations this project does not attempt to cross
+
+1. **Genuine intersubjectivity in Prolog.** The monological nature of sequential
+   computation is not a bug to fix but a structural fact. Dyadic interaction
+   requires two perspectives that can surprise each other — this is what LLMs
+   can provide and Prolog cannot. We are not trying to simulate a conversation
+   partner in Horn clauses.
+
+2. **Subjective experience of crisis.** The Arche-Trace formally marks where
+   proofs about subjective experience get erased. This is the correct formal
+   move: marking the boundary, not attempting to cross it. The system can detect
+   that a crisis occurred and classify it; it cannot know what the crisis felt
+   like. That knowledge belongs to the learner (and, interpretively, to whoever
+   is teaching them).
+
+3. **Autonomous concept generation.** When System A detects a bad infinite
+   (Being ↔ Nothing), it cannot generate the concept of Becoming. It can only
+   record the oscillation and signal that external intervention is needed. The
+   formal system marks *where* a new concept is needed; the creative act of
+   producing one is outside its scope.
+
+4. **Pedagogical judgment.** The skeleton can say "this learner has hit a
+   resource crisis on add(8,5) and COBO is available." It cannot say "this is
+   the right moment to introduce COBO" versus "let them struggle for another
+   three minutes." That judgment requires reading the room — soft tissue work.
+
+These are not failures of the formalization. They are the boundaries where the
+formalization is *supposed* to stop, and they are the reason the skeleton thesis
+matters: a formal structure that tried to do everything would overclaim. A formal
+structure that makes its own limits visible is useful.
+
+---
+
 ## A note on what this assessment is not
 
 This assessment does not claim that the formalization "demonstrates" or

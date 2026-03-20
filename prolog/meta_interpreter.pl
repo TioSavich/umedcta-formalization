@@ -101,12 +101,18 @@ solve(Goal, I_In, I_Out, Trace) :-
 % Base case: `true` always succeeds. Context is unchanged.
 solve(true, Ctx, Ctx, I, I, []) :- !.
 
-% Cognitive Cost Tracking: Intercept cost signals for embodied learning
-solve(incur_cost(Action), Ctx, Ctx, I_In, I_Out, [cognitive_cost(Action, Cost)]) :-
+% Cognitive Cost Tracking: Intercept cost signals for embodied learning.
+% P2-4: Costs are now context-sensitive — compressive context doubles all
+% action costs, unifying System A's modal cost model (get_inference_cost/2)
+% with System B's action cost model (cognitive_cost/2). A unit_count that
+% costs 5 in neutral context costs 10 under compressive necessity.
+solve(incur_cost(Action), Ctx, Ctx, I_In, I_Out, [cognitive_cost(Action, AdjustedCost)]) :-
     !,
-    ( config:cognitive_cost(Action, Cost) -> true ; Cost = 0 ),
-    check_viability(I_In, Cost),
-    I_Out is I_In - Cost.
+    ( config:cognitive_cost(Action, BaseCost) -> true ; BaseCost = 0 ),
+    get_inference_cost(Ctx, ContextMultiplier),
+    AdjustedCost is BaseCost * ContextMultiplier,
+    check_viability(I_In, AdjustedCost),
+    I_Out is I_In - AdjustedCost.
 
 % Modal Operator: Detect a modal operator, switch context for the sub-proof,
 % and restore it upon completion. Enhanced to capture detailed modal information.
@@ -173,8 +179,10 @@ solve(object_level:add(A, B, Result), Ctx, Ctx, I_In, I_Out, [learned_strategy(S
         format('      [DEBUG] Calling run_learned_strategy A=~w B=~w Res=~w Name=~w Trace=~w~n', [A, B, Result, StrategyName, StrategyTrace]),
         more_machine_learner:run_learned_strategy(A, B, Result, StrategyName, StrategyTrace),
         format('      [Strategy Selection] Using learned strategy: ~w~n', [StrategyName]),
-        strategy_runtime_cost(StrategyName, A, B, StratCost),
-        check_viability(I_In, StratCost), % THIS will trigger crisis if StratCost > I_In
+        strategy_runtime_cost(StrategyName, A, B, BaseCost),
+        get_inference_cost(Ctx, CtxMul),
+        StratCost is BaseCost * CtxMul,  % P2-4: context-sensitive strategy cost
+        check_viability(I_In, StratCost),
         I_Out is I_In - StratCost
     ;   
         % Fall back to foundational solving if no learned strategy applies

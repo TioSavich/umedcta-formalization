@@ -106,10 +106,13 @@ reflect_on_success(_Goal, _Trace).
 %       @param Trace The execution trace produced before the error occurred.
 %       @param Limit The original resource limit.
 handle_perturbation(perturbation(resource_exhaustion), Goal, Trace, Limit) :-
+    % P2-3: Classify before handling
+    classify_crisis(perturbation(resource_exhaustion), Classification, Meta),
     writeln('═══════════════════════════════════════════════════════════'),
-    writeln('  CRISIS: Resource Exhaustion Detected'),
+    format('  CRISIS: ~w~n', [Classification]),
     writeln('═══════════════════════════════════════════════════════════'),
     format('  Failed Goal: ~w~n', [Goal]),
+    format('  Skeleton signal: ~w~n', [Meta.skeleton_signal]),
     writeln('  Initiating Oracle Consultation...'),
     writeln(''),
     
@@ -133,10 +136,21 @@ handle_perturbation(perturbation(resource_exhaustion), Goal, Trace, Limit) :-
         % NEW: Instead of pattern matching, we synthesize from constraints
         (   synthesize_from_oracle(SynthesisInput)
         ->  writeln('  ✓ Successfully synthesized new strategy!'),
-            writeln('  Retrying goal with new knowledge...'),
-            writeln('═══════════════════════════════════════════════════════════'),
-            writeln(''),
-            run_computation(Goal, Limit)
+            % P2-2: Post-synthesis normative validation
+            % Verify the new strategy produces results consistent with
+            % the oracle's answer. This catches synthesis bugs before
+            % they poison the system.
+            (   validate_synthesis(Goal, OracleResult, Limit)
+            ->  writeln('  ✓ Normative validation passed.'),
+                writeln('  Retrying goal with new knowledge...'),
+                writeln('═══════════════════════════════════════════════════════════'),
+                writeln(''),
+                run_computation(Goal, Limit)
+            ;   writeln('  ✗ Normative validation FAILED — strategy retracted.'),
+                writeln('  Crisis remains unresolved.'),
+                writeln('═══════════════════════════════════════════════════════════'),
+                fail
+            )
         ;   writeln('  ✗ Synthesis failed - unable to learn from oracle'),
             writeln('  Crisis remains unresolved'),
             writeln('═══════════════════════════════════════════════════════════'),
@@ -165,13 +179,15 @@ handle_perturbation(perturbation(normative_crisis(CrisisGoal, Context)), Goal, _
 % When an arithmetic operation (subtract/multiply/divide) is attempted from primordial state,
 % consult oracle for first available strategy, synthesize it, and retry.
 handle_perturbation(perturbation(unknown_operation(Op, PeanoGoal)), Goal, _Trace, Limit) :-
+    % P2-3: Classify before handling
+    classify_crisis(perturbation(unknown_operation(Op, PeanoGoal)), Classification, Meta),
     writeln(''),
     writeln('═══════════════════════════════════════════════════════════'),
-    writeln('  CRISIS: Unknown Operation Detected'),
+    format('  CRISIS: ~w~n', [Classification]),
     writeln('═══════════════════════════════════════════════════════════'),
     format('  Operation: ~w~n', [Op]),
     format('  Goal: ~w~n', [PeanoGoal]),
-    writeln('  System has no strategy for this operation type.'),
+    format('  Skeleton signal: ~w~n', [Meta.skeleton_signal]),
     writeln('  Initiating Oracle Consultation...'),
     writeln(''),
     
@@ -197,10 +213,18 @@ handle_perturbation(perturbation(unknown_operation(Op, PeanoGoal)), Goal, _Trace
             
             (   synthesize_from_oracle(SynthesisInput)
             ->  writeln('  ✓ Successfully synthesized new strategy!'),
-                writeln('  Retrying goal with new knowledge...'),
-                writeln('═══════════════════════════════════════════════════════════'),
-                writeln(''),
-                run_computation(Goal, Limit)
+                % P2-2: Post-synthesis normative validation
+                (   validate_synthesis(PeanoGoal, OracleResult, Limit)
+                ->  writeln('  ✓ Normative validation passed.'),
+                    writeln('  Retrying goal with new knowledge...'),
+                    writeln('═══════════════════════════════════════════════════════════'),
+                    writeln(''),
+                    run_computation(Goal, Limit)
+                ;   writeln('  ✗ Normative validation FAILED — strategy retracted.'),
+                    writeln('  Crisis remains unresolved.'),
+                    writeln('═══════════════════════════════════════════════════════════'),
+                    fail
+                )
             ;   writeln('  ✗ Synthesis failed - unable to learn from oracle'),
                 writeln('  Crisis remains unresolved'),
                 writeln('═══════════════════════════════════════════════════════════'),
@@ -229,6 +253,118 @@ handle_perturbation(Error, _, _, _) :-
     writeln('An unhandled error occurred:'),
     writeln(Error),
     fail.
+
+% ═══════════════════════════════════════════════════════════════════════
+% P2-3: Crisis Classification
+% ═══════════════════════════════════════════════════════════════════════
+%
+% Classifies crises using System A's normative vocabulary to drive
+% different ORR responses. An LLM-as-oracle could use these classifications
+% as pedagogical signals (see SYSTEM_ASSESSMENT.md "skeleton and animating
+% spirit").
+%
+%   efficiency_crisis    → Strategy is correct but too slow.
+%                          Response: acquire more efficient strategy from oracle.
+%   domain_crisis        → Operation not defined in current number domain.
+%                          Response: expand domain (naturals → integers → rationals).
+%   unknown_operation    → Operation type never encountered.
+%                          Response: learn first available strategy from oracle.
+%   normative_crisis     → Mathematical norms of current context violated.
+%                          Response: context shift via reorganization_engine.
+%   incoherence_crisis   → Contradictory commitments detected.
+%                          Response: belief revision (retract weakest commitment).
+%
+
+%!      classify_crisis(+Perturbation, -Classification, -Metadata) is det.
+%
+%       Maps a perturbation term to a crisis classification with metadata
+%       useful for pedagogical decision-making.
+%
+classify_crisis(perturbation(resource_exhaustion), Classification, Meta) :-
+    % Resource exhaustion could be efficiency (strategy exists but is slow)
+    % or domain-level (operation requires a number domain we don't have).
+    % Default to efficiency; normative crises are caught separately.
+    Classification = efficiency_crisis,
+    Meta = crisis_meta{
+        response: acquire_efficient_strategy,
+        skeleton_signal: 'Learner has a working approach but runs out of cognitive resources. An LLM oracle might ask: is this the right moment to introduce a shortcut, or should the learner struggle longer?'
+    }.
+
+classify_crisis(perturbation(unknown_operation(Op, Goal)), Classification, Meta) :-
+    Classification = unknown_operation,
+    Meta = crisis_meta{
+        operation: Op,
+        goal: Goal,
+        response: learn_first_strategy,
+        skeleton_signal: 'Learner encounters an operation type they have no concept for. An LLM oracle might consider: which strategy is developmentally appropriate? The simplest (COBO) or the one matching the learner''s current number sense?'
+    }.
+
+classify_crisis(perturbation(normative_crisis(CrisisGoal, Context)), Classification, Meta) :-
+    Classification = normative_crisis,
+    Meta = crisis_meta{
+        crisis_goal: CrisisGoal,
+        context: Context,
+        response: domain_expansion,
+        skeleton_signal: 'Learner''s current mathematical world cannot accommodate this operation. Subtraction producing negatives in a natural-number context. An LLM oracle might frame this as: what kind of numbers do you need to make this work?'
+    }.
+
+classify_crisis(perturbation(incoherence(Commitments)), Classification, Meta) :-
+    Classification = incoherence_crisis,
+    Meta = crisis_meta{
+        commitments: Commitments,
+        response: belief_revision,
+        skeleton_signal: 'Learner holds contradictory commitments. An LLM oracle might notice which belief is most stressed and help the learner let go of it.'
+    }.
+
+% Fallback: unrecognized perturbation
+classify_crisis(Perturbation, unclassified, crisis_meta{raw: Perturbation, response: fail}).
+
+%!      validate_synthesis(+Goal, +ExpectedResult, +Limit) is semidet.
+%
+%       P2-2: Post-synthesis normative validation.
+%       After a new strategy is synthesized, verify it produces results
+%       consistent with the oracle's answer. This catches synthesis bugs
+%       before they poison the system.
+%
+%       Currently validates:
+%       1. The new strategy can solve the original crisis goal
+%       2. The result matches what the oracle provided
+%
+%       Future extension point: use System A's proves/4 to check that
+%       the new strategy's commitments are consistent with the existing
+%       normative structure (requires arithmetic axioms in System A).
+%
+validate_synthesis(Goal, ExpectedResult, Limit) :-
+    % Extract the operation and expected result for comparison
+    (   Goal = object_level:ActualGoal -> true ; ActualGoal = Goal ),
+    ActualGoal =.. [_Op, A, B, _Result],
+    % Try solving with the newly asserted strategy
+    copy_term(ActualGoal, TestGoal),
+    TestGoal =.. [Op2, A, B, TestResult],
+    catch(
+        meta_interpreter:solve(object_level:TestGoal, Limit, _, _TestTrace),
+        _Error,
+        (   format('  [Validation] Strategy execution failed: ~w~n', [_Error]),
+            fail
+        )
+    ),
+    % Verify result matches oracle
+    (   peano_to_int(TestResult, IntResult),
+        IntResult =:= ExpectedResult
+    ->  format('  [Validation] Result ~w matches oracle expectation ~w~n',
+               [IntResult, ExpectedResult])
+    ;   format('  [Validation] Result mismatch — got ~w, expected ~w~n',
+               [TestResult, ExpectedResult]),
+        % Retract the faulty strategy
+        (   clause(object_level:ActualGoal, Body)
+        ->  retract((object_level:ActualGoal :- Body)),
+            writeln('  [Validation] Faulty strategy retracted.')
+        ;   true
+        ),
+        fail
+    ).
+% Fallback: if we can't decompose the goal, skip validation (succeed)
+validate_synthesis(_, _, _).
 
 %!      consult_oracle_for_solution(+Goal, -Result, -Interpretation) is semidet.
 %

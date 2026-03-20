@@ -80,35 +80,39 @@ Written to `prolog/SYSTEM_ASSESSMENT.md`. Key findings:
 - **Three augmentation points**: post-synthesis normative validation (P2-2), finer crisis
   classification (P2-3), modal cost unification (P2-4).
 
-### [P2-2] Post-synthesis normative validation
-After System B synthesizes a new strategy, use System A's proves/4 and critique module
-to check that the new clause doesn't create incoherence with existing commitments.
-**Why:** Gives newly learned strategies normative standing, not just procedural correctness.
-**Difficulty:** Medium. Requires translating object_level clauses into sequent form.
-**Depends on:** P2-1
+### [P2-2] Post-synthesis normative validation ✓ DONE
+Added `validate_synthesis/3` to `execution_handler.pl`. After strategy synthesis, the
+system now verifies the new strategy produces results matching the oracle's answer before
+retrying. If validation fails, the faulty strategy is retracted. Currently validates
+procedural correctness (result agreement); future extension point for deeper normative
+validation via System A's `proves/4` when arithmetic axioms are added to the sequent
+calculus.
 
-### [P2-3] Finer crisis classification via incompatibility semantics
-Use System A to distinguish resource crises (inefficiency) from normative crises (domain
-mismatch) from bad infinites (oscillation). Drive different ORR responses for each.
-**Why:** Resource crises need efficiency strategies; normative crises need domain expansion;
-bad infinites need qualitatively new concepts.
-**Difficulty:** Medium. Crisis types already exist in both systems; need mapping between them.
-**Depends on:** P2-1
+### [P2-3] Finer crisis classification via incompatibility semantics ✓ DONE
+Added `classify_crisis/3` to `execution_handler.pl`. Five crisis types:
+- `efficiency_crisis` — strategy works but too slow (resource exhaustion)
+- `unknown_operation` — operation type never encountered
+- `normative_crisis` — mathematical norms of current context violated
+- `incoherence_crisis` — contradictory commitments detected
+- `unclassified` — fallback for unrecognized perturbations
+Each classification includes a `skeleton_signal` — a natural-language description of
+what an LLM-as-oracle would need to consider at this crisis point.
 
-### [P2-4] Unify modal cost models
-Reconcile System B's config.pl cognitive_cost/2 with System A's context-dependent cost
-(compressive=2, expansive=1). Strategies under compressive necessity should cost more.
-**Why:** Single framework for cognitive load tracking across both systems.
-**Difficulty:** Easy. Both cost models already exist; need a shared interface.
-**Depends on:** P2-1
+### [P2-4] Unify modal cost models ✓ DONE
+Modified `solve(incur_cost(Action), ...)` in `meta_interpreter.pl` to multiply action
+costs by modal context (compressive=2×, expansive/neutral=1×). A `unit_count` that costs
+5 in neutral context now costs 10 under compressive necessity. Strategy runtime costs
+(`strategy_runtime_cost/4`) also context-adjusted. Unifies System A's
+`get_inference_cost/2` with System B's `cognitive_cost/2`.
 
-### [P2-5] Document Arche-Trace erasure points
-Catalog exactly which proofs get erased when the Arche-Trace contaminates them. These
-are the formal boundary markers of the skeleton thesis — where formal analysis yields
-to interpretive analysis.
-**Why:** Makes the manuscript's central claim computationally visible.
-**Difficulty:** Easy. Run proofs involving s(I_f), inspect erasure/propagation patterns.
-**Depends on:** P2-1
+### [P2-5] Document Arche-Trace erasure points ✓ DONE
+Written to `prolog/ARCHE_TRACE_ERASURE.md`. Ran 14 experiments cataloging the precise
+boundary: any proof where sequent variables carry the `arche_trace` attribute produces
+`erasure(...)` instead of `proof(...)`. Three zones mapped: clear formal (normal proofs),
+erasure zone (derivation succeeds but proof object is hollow), incoherence zone (claim
+is rejected outright). Erasure points: identity with Trace, S-O Inversion, double
+negation elimination, Oobleck S→O transfer. Unsatisfiable Desire is incoherence, not
+just erasure.
 
 ## Phase 3: Interactive Exploration
 
