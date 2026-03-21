@@ -18,6 +18,7 @@
 :- use_module(more_machine_learner, [reflect_and_learn/1]).
 :- use_module(oracle_server).  % Access to normative oracle
 :- use_module(fsm_synthesis_engine).  % NEW Phase 5: True FSM synthesis
+:- use_module(event_log, [emit/2]).
 
 %!      run_computation(+Goal:term, +Limit:integer) is semidet.
 %
@@ -31,6 +32,7 @@
 %       @param Goal The computational goal to be solved.
 %       @param Limit The maximum number of inference steps allowed.
 run_computation(Goal, Limit) :-
+    emit(computation_start, _{goal: Goal, limit: Limit}),
     catch(
         call_meta_interpreter(Goal, Limit, Trace),
         Error,
@@ -52,7 +54,14 @@ run_computation(Goal, Limit) :-
 %       @param Limit The inference limit.
 %       @param Trace The resulting execution trace.
 call_meta_interpreter(Goal, Limit, Trace) :-
-    meta_interpreter:solve(Goal, Limit, _, Trace),
+    meta_interpreter:solve(Goal, Limit, Remaining, Trace),
+    Used is Limit - Remaining,
+    (   goal_result_int(Goal, IntResult)
+    ->  emit(computation_success, _{goal: Goal, inferences_used: Used,
+                                     inferences_remaining: Remaining, result: IntResult})
+    ;   emit(computation_success, _{goal: Goal, inferences_used: Used,
+                                     inferences_remaining: Remaining})
+    ),
     writeln('Computation successful.').
     % REMOVED: reflect_on_success(Goal, Trace)
     % Learning is now crisis-driven only
@@ -108,6 +117,8 @@ reflect_on_success(_Goal, _Trace).
 handle_perturbation(perturbation(resource_exhaustion), Goal, Trace, Limit) :-
     % P2-3: Classify before handling
     classify_crisis(perturbation(resource_exhaustion), Classification, Meta),
+    emit(crisis_detected, _{perturbation: resource_exhaustion, goal: Goal}),
+    emit(crisis_classified, _{classification: Classification, signal: Meta.skeleton_signal}),
     writeln('═══════════════════════════════════════════════════════════'),
     format('  CRISIS: ~w~n', [Classification]),
     writeln('═══════════════════════════════════════════════════════════'),
@@ -115,14 +126,16 @@ handle_perturbation(perturbation(resource_exhaustion), Goal, Trace, Limit) :-
     format('  Skeleton signal: ~w~n', [Meta.skeleton_signal]),
     writeln('  Initiating Oracle Consultation...'),
     writeln(''),
-    
+
     % NEW: Consult the oracle to see how an expert would solve this
     (   consult_oracle_for_solution(Goal, StrategyName, OracleResult, OracleInterpretation)
-    ->  format('  Oracle Result: ~w~n', [OracleResult]),
+    ->  emit(oracle_consulted, _{strategy: StrategyName, result: OracleResult,
+                                  interpretation: OracleInterpretation}),
+        format('  Oracle Result: ~w~n', [OracleResult]),
         format('  Oracle Says: "~w"~n', [OracleInterpretation]),
         writeln(''),
         writeln('  Attempting to synthesize strategy from oracle guidance...'),
-        
+
         % Pass oracle's guidance to learner for synthesis
         normalize_trace(Trace, NormalizedTrace),
         SynthesisInput = _{
@@ -132,46 +145,60 @@ handle_perturbation(perturbation(resource_exhaustion), Goal, Trace, Limit) :-
             target_interpretation: OracleInterpretation,
             strategy_name: StrategyName
         },
-        
+
+        emit(synthesis_attempted, _{strategy: StrategyName, goal: Goal}),
         % NEW: Instead of pattern matching, we synthesize from constraints
         (   synthesize_from_oracle(SynthesisInput)
-        ->  writeln('  ✓ Successfully synthesized new strategy!'),
+        ->  emit(synthesis_succeeded, _{strategy: StrategyName}),
+            writeln('  ✓ Successfully synthesized new strategy!'),
             % P2-2: Post-synthesis normative validation
             % Verify the new strategy produces results consistent with
             % the oracle's answer. This catches synthesis bugs before
             % they poison the system.
             (   validate_synthesis(Goal, OracleResult, Limit)
-            ->  writeln('  ✓ Normative validation passed.'),
+            ->  emit(validation_passed, _{strategy: StrategyName, expected: OracleResult}),
+                writeln('  ✓ Normative validation passed.'),
+                emit(retry, _{goal: Goal, reason: new_strategy}),
                 writeln('  Retrying goal with new knowledge...'),
                 writeln('═══════════════════════════════════════════════════════════'),
                 writeln(''),
                 run_computation(Goal, Limit)
-            ;   writeln('  ✗ Normative validation FAILED — strategy retracted.'),
+            ;   emit(validation_failed, _{strategy: StrategyName, expected: OracleResult}),
+                writeln('  ✗ Normative validation FAILED — strategy retracted.'),
+                emit(computation_failed, _{goal: Goal, reason: validation_failure}),
                 writeln('  Crisis remains unresolved.'),
                 writeln('═══════════════════════════════════════════════════════════'),
                 fail
             )
-        ;   writeln('  ✗ Synthesis failed - unable to learn from oracle'),
+        ;   emit(synthesis_failed, _{strategy: StrategyName, goal: Goal}),
+            writeln('  ✗ Synthesis failed - unable to learn from oracle'),
+            emit(computation_failed, _{goal: Goal, reason: synthesis_failure}),
             writeln('  Crisis remains unresolved'),
             writeln('═══════════════════════════════════════════════════════════'),
             fail
         )
-    ;   writeln('  ✗ Oracle consultation failed - no expert strategy available'),
+    ;   emit(oracle_exhausted, _{goal: Goal}),
+        writeln('  ✗ Oracle consultation failed - no expert strategy available'),
         writeln('  Attempting fallback learning...'),
         % Fallback: try old reflection method (will be removed in later phases)
         normalize_trace(Trace, NormalizedTrace),
         Result = _{goal:Goal, trace:NormalizedTrace},
         reflect_and_learn(Result),
+        emit(retry, _{goal: Goal, reason: fallback_learning}),
         writeln('  Reorganization complete. Retrying goal...'),
         writeln('═══════════════════════════════════════════════════════════'),
         run_computation(Goal, Limit)
     ).
 
 handle_perturbation(perturbation(normative_crisis(CrisisGoal, Context)), Goal, _Trace, Limit) :-
+    emit(crisis_detected, _{perturbation: normative_crisis, goal: CrisisGoal, context: Context}),
+    classify_crisis(perturbation(normative_crisis(CrisisGoal, Context)), Classification, Meta),
+    emit(crisis_classified, _{classification: Classification, signal: Meta.skeleton_signal}),
     format('Normative crisis detected: ~w violates norms of ~w context.~n', [CrisisGoal, Context]),
     writeln('Initiating context shift reorganization...'),
     % Handle normative crisis through context expansion
     reorganization_engine:handle_normative_crisis(CrisisGoal, Context),
+    emit(retry, _{goal: Goal, reason: context_shift}),
     writeln('Context shift complete. Retrying goal...'),
     run_computation(Goal, Limit).
 
@@ -181,6 +208,8 @@ handle_perturbation(perturbation(normative_crisis(CrisisGoal, Context)), Goal, _
 handle_perturbation(perturbation(unknown_operation(Op, PeanoGoal)), Goal, _Trace, Limit) :-
     % P2-3: Classify before handling
     classify_crisis(perturbation(unknown_operation(Op, PeanoGoal)), Classification, Meta),
+    emit(crisis_detected, _{perturbation: unknown_operation, operation: Op, goal: PeanoGoal}),
+    emit(crisis_classified, _{classification: Classification, signal: Meta.skeleton_signal}),
     writeln(''),
     writeln('═══════════════════════════════════════════════════════════'),
     format('  CRISIS: ~w~n', [Classification]),
@@ -190,18 +219,20 @@ handle_perturbation(perturbation(unknown_operation(Op, PeanoGoal)), Goal, _Trace
     format('  Skeleton signal: ~w~n', [Meta.skeleton_signal]),
     writeln('  Initiating Oracle Consultation...'),
     writeln(''),
-    
+
     % Get first available strategy for this operation from oracle
     (   oracle_server:list_available_strategies(Op, [FirstStrategy|_])
     ->  format('  Oracle recommends learning: ~w~n', [FirstStrategy]),
-        
+
         % Consult oracle with the specific strategy
         (   consult_oracle_for_solution(PeanoGoal, FirstStrategy, OracleResult, OracleInterpretation)
-        ->  format('  Oracle Result: ~w~n', [OracleResult]),
+        ->  emit(oracle_consulted, _{strategy: FirstStrategy, result: OracleResult,
+                                      interpretation: OracleInterpretation}),
+            format('  Oracle Result: ~w~n', [OracleResult]),
             format('  Oracle Says: "~w"~n', [OracleInterpretation]),
             writeln(''),
             writeln('  Attempting to synthesize strategy from oracle guidance...'),
-            
+
             % Synthesize the new strategy
             SynthesisInput = _{
                 goal: PeanoGoal,
@@ -210,46 +241,63 @@ handle_perturbation(perturbation(unknown_operation(Op, PeanoGoal)), Goal, _Trace
                 target_interpretation: OracleInterpretation,
                 strategy_name: FirstStrategy
             },
-            
+
+            emit(synthesis_attempted, _{strategy: FirstStrategy, goal: PeanoGoal}),
             (   synthesize_from_oracle(SynthesisInput)
-            ->  writeln('  ✓ Successfully synthesized new strategy!'),
+            ->  emit(synthesis_succeeded, _{strategy: FirstStrategy}),
+                writeln('  ✓ Successfully synthesized new strategy!'),
                 % P2-2: Post-synthesis normative validation
                 (   validate_synthesis(PeanoGoal, OracleResult, Limit)
-                ->  writeln('  ✓ Normative validation passed.'),
+                ->  emit(validation_passed, _{strategy: FirstStrategy, expected: OracleResult}),
+                    writeln('  ✓ Normative validation passed.'),
+                    emit(retry, _{goal: Goal, reason: new_strategy}),
                     writeln('  Retrying goal with new knowledge...'),
                     writeln('═══════════════════════════════════════════════════════════'),
                     writeln(''),
                     run_computation(Goal, Limit)
-                ;   writeln('  ✗ Normative validation FAILED — strategy retracted.'),
+                ;   emit(validation_failed, _{strategy: FirstStrategy, expected: OracleResult}),
+                    writeln('  ✗ Normative validation FAILED — strategy retracted.'),
+                    emit(computation_failed, _{goal: Goal, reason: validation_failure}),
                     writeln('  Crisis remains unresolved.'),
                     writeln('═══════════════════════════════════════════════════════════'),
                     fail
                 )
-            ;   writeln('  ✗ Synthesis failed - unable to learn from oracle'),
+            ;   emit(synthesis_failed, _{strategy: FirstStrategy, goal: PeanoGoal}),
+                writeln('  ✗ Synthesis failed - unable to learn from oracle'),
+                emit(computation_failed, _{goal: Goal, reason: synthesis_failure}),
                 writeln('  Crisis remains unresolved'),
                 writeln('═══════════════════════════════════════════════════════════'),
                 fail
             )
-        ;   writeln('  ✗ Oracle execution failed for strategy'),
+        ;   emit(oracle_exhausted, _{goal: PeanoGoal, strategy: FirstStrategy}),
+            writeln('  ✗ Oracle execution failed for strategy'),
+            emit(computation_failed, _{goal: Goal, reason: oracle_failure}),
             writeln('  Crisis remains unresolved'),
             writeln('═══════════════════════════════════════════════════════════'),
             fail
         )
-    ;   format('  ✗ No strategies available for operation: ~w~n', [Op]),
+    ;   emit(oracle_exhausted, _{goal: PeanoGoal, operation: Op}),
+        format('  ✗ No strategies available for operation: ~w~n', [Op]),
+        emit(computation_failed, _{goal: Goal, reason: no_strategies}),
         writeln('  Crisis remains unresolved'),
         writeln('═══════════════════════════════════════════════════════════'),
         fail
     ).
 
 handle_perturbation(perturbation(incoherence(Commitments)), Goal, _Trace, Limit) :-
+    emit(crisis_detected, _{perturbation: incoherence, commitments: Commitments}),
+    classify_crisis(perturbation(incoherence(Commitments)), Classification, Meta),
+    emit(crisis_classified, _{classification: Classification, signal: Meta.skeleton_signal}),
     format('Logical incoherence detected in commitments: ~w~n', [Commitments]),
     writeln('Initiating incoherence resolution...'),
     % Handle logical incoherence through belief revision
     reorganization_engine:handle_incoherence(Commitments),
+    emit(retry, _{goal: Goal, reason: belief_revision}),
     writeln('Incoherence resolution complete. Retrying goal...'),
     run_computation(Goal, Limit).
 
-handle_perturbation(Error, _, _, _) :-
+handle_perturbation(Error, Goal, _, _) :-
+    emit(computation_failed, _{goal: Goal, reason: Error}),
     writeln('An unhandled error occurred:'),
     writeln(Error),
     fail.
@@ -366,6 +414,17 @@ validate_synthesis(Goal, ExpectedResult, Limit) :-
 % Fallback: if we can't decompose the goal, skip validation (succeed)
 validate_synthesis(_, _, _).
 
+%!      find_novel_strategy(+Strategies, -Strategy) is semidet.
+%
+%       Find the first strategy in the list that has not already been learned.
+%       P3-2: Makes "all strategies learned" an explicit, visible condition
+%       rather than a silent failure.
+%
+find_novel_strategy(Strategies, Strategy) :-
+    member(Strategy, Strategies),
+    \+ clause(more_machine_learner:run_learned_strategy(_,_,_,Strategy,_), _),
+    !.
+
 %!      consult_oracle_for_solution(+Goal, -Result, -Interpretation) is semidet.
 %
 %       Attempts to consult the oracle for a solution to the failed goal.
@@ -377,11 +436,14 @@ consult_oracle_for_solution(object_level:add(A, B, _), StrategyName, Result, Int
     peano_to_int(B, IntB),
     % Try each available strategy until one succeeds and is NOT already known
     oracle_server:list_available_strategies(add, Strategies),
-    member(StrategyName, Strategies),
-    \+ clause(more_machine_learner:run_learned_strategy(_,_,_,StrategyName,_), _),
-    catch(
-        oracle_server:query_oracle(add(IntA, IntB), StrategyName, Result, Interpretation),
-        _,
+    (   find_novel_strategy(Strategies, StrategyName)
+    ->  catch(
+            oracle_server:query_oracle(add(IntA, IntB), StrategyName, Result, Interpretation),
+            _,
+            fail
+        )
+    ;   emit(oracle_exhausted, _{operation: add, reason: all_strategies_learned,
+                                  strategies: Strategies}),
         fail
     ),
     !.  % Cut after first successful novel strategy
@@ -391,11 +453,14 @@ consult_oracle_for_solution(add(A, B, _), StrategyName, Result, Interpretation) 
     peano_to_int(A, IntA),
     peano_to_int(B, IntB),
     oracle_server:list_available_strategies(add, Strategies),
-    member(StrategyName, Strategies),
-    \+ clause(more_machine_learner:run_learned_strategy(_,_,_,StrategyName,_), _),
-    catch(
-        oracle_server:query_oracle(add(IntA, IntB), StrategyName, Result, Interpretation),
-        _,
+    (   find_novel_strategy(Strategies, StrategyName)
+    ->  catch(
+            oracle_server:query_oracle(add(IntA, IntB), StrategyName, Result, Interpretation),
+            _,
+            fail
+        )
+    ;   emit(oracle_exhausted, _{operation: add, reason: all_strategies_learned,
+                                  strategies: Strategies}),
         fail
     ),
     !.
@@ -455,6 +520,13 @@ peano_to_int(0, 0) :- !.
 peano_to_int(s(N), Int) :-
     peano_to_int(N, SubInt),
     Int is SubInt + 1.
+
+%!      goal_result_int(+Goal, -IntResult) is semidet.
+%
+%       Extract the integer result from a bound goal.
+%       After solve/4 succeeds, the result variable is unified with Peano.
+goal_result_int(object_level:G, R) :- !, goal_result_int(G, R).
+goal_result_int(G, R) :- G =.. [_, _, _, PeanoR], ground(PeanoR), peano_to_int(PeanoR, R).
 
 %!      synthesize_from_oracle(+SynthesisInput) is semidet.
 %

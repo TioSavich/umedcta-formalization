@@ -1,8 +1,8 @@
 # Prolog/math/ — Children's Arithmetic Strategy Automata
 
-Formal models of children's arithmetic reasoning strategies, based on Russell's
-cognitive analysis of how children actually compute. Each file implements one
-strategy as a finite state machine with execution trace.
+Formal models of children's arithmetic reasoning strategies, based on Carpenter
+and Fennema's Cognitively Guided Instruction (CGI) research. Each file implements
+one strategy as a finite state machine with execution trace.
 
 ## Epistemological status: reusable across epistemologies
 
@@ -13,18 +13,20 @@ loads them through `oracle_server.pl` as strategies the learner can acquire.
 
 ## Strategy files
 
-### Addition (SAR — Single Addend Reasoning)
+### Addition (SAR — Strategic Additive Reasoning)
 | File | Strategy | Example |
 |------|----------|---------|
-| `sar_add_cobo.pl` | Count On By Ones | 8+5: count 9,10,11,12,13 |
-| `sar_add_rmb.pl` | Retrieval from Memory Bank | 8+5: recall 13 |
+| `sar_add_counting_on.pl` | Counting On | 8+5: start at 8, count 9,10,11,12,13 |
+| `sar_add_cobo.pl` | Count On by Bases and Ones | 38+55: count on 5 tens (48,58,68,78,88) then 5 ones (89,...,93) |
+| `sar_add_rmb.pl` | Rearranging to Make Bases | 8+5: move 2 from 5 to 8 to make 10, then 10+3=13 |
 | `sar_add_chunking.pl` | Chunking | 8+5: 8+2=10, 10+3=13 |
 | `sar_add_rounding.pl` | Rounding | 19+3: 20+3=23, 23-1=22 |
 
 ### Subtraction (SAR)
 | File | Strategy | Example |
 |------|----------|---------|
-| `sar_sub_cbbo_take_away.pl` | Count Back By Ones (Take Away) | 13-5: count 12,11,10,9,8 |
+| `sar_sub_counting_back.pl` | Counting Back | 13-5: start at 13, count 12,11,10,9,8 |
+| `sar_sub_cbbo_take_away.pl` | Count Back By Ones (Take Away) | 13-5: count back by tens then ones |
 | `sar_sub_cobo_missing_addend.pl` | Count On (Missing Addend) | 13-8: count 9,10,11,12,13 → 5 |
 | `sar_sub_chunking_a.pl` | Chunking A | 13-5: 13-3=10, 10-2=8 |
 | `sar_sub_chunking_b.pl` | Chunking B | Variant chunking |

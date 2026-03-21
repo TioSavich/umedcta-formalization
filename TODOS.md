@@ -116,19 +116,25 @@ just erasure.
 
 ## Phase 3: Interactive Exploration
 
-### [P3-1] Add structured event logging
-Add JSON event log alongside stdout in execution_handler, oracle_server,
-fsm_synthesis_engine, server.pl. Each ORR step emits a structured event.
-**Why:** Frontend can't visualize the ORR cycle from a text blob. Structured events
-are the prerequisite for any visualization.
-**Depends on:** Phase 1 complete (pipeline verified running)
+### [P3-1] Add structured event logging ✓ DONE
+Created `event_log.pl` module (emit/2, reset_events/0, get_events/1, events_to_json/1).
+Wired emit/2 calls into every ORR cycle step in `execution_handler.pl`:
+computation_start, computation_success, crisis_detected, crisis_classified,
+oracle_consulted, oracle_exhausted, synthesis_attempted, synthesis_succeeded/failed,
+validation_passed/failed, retry, computation_failed.
+Custom JSON serializer — no external library dependency.
 
-### [P3-2] Fix silent failure when all oracle strategies are learned
-In execution_handler.pl, consult_oracle_for_solution/4 silently fails when all strategies
-for an operation are already learned. Should produce an explicit diagnostic.
-**Why:** "The oracle has nothing left to teach" is philosophically interesting and should
-be visible in the interactive exploration.
-**Depends on:** P3-1 (should be a structured event, not just format output)
+### [P3-2] Fix silent failure when all oracle strategies are learned ✓ DONE
+Added `find_novel_strategy/2` helper in `execution_handler.pl`. When all strategies
+for an operation are already learned, emits `oracle_exhausted` event with
+`reason: all_strategies_learned` instead of silently failing.
+
+### [P3-S] Build HTTP server and frontend ✓ DONE
+Created `server.pl` — minimal HTTP server exposing the ORR cycle as a JSON API.
+Three endpoints: POST /api/compute, GET /api/strategies, GET /api/events.
+Inline single-page frontend at / — dark-themed timeline visualization of ORR events.
+Stdout from run_computation captured via `with_output_to/2` to avoid corrupting HTTP.
+Usage: `swipl server.pl` → http://localhost:8080
 
 ### [P3-3] Fix config.pl race condition (thread-safety)
 web server uses retractall/assertz for max_inferences — global mutable state that races

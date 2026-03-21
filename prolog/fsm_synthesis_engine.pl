@@ -1,37 +1,31 @@
 /** <module> FSM Synthesis Engine
  *
- * This module implements the core synthesis engine that enables genuine
- * emergent learning. Unlike pattern-matching approaches, this engine
- * constructs Finite State Machine (FSM) strategies by searching the space
- * of possible primitive operation compositions.
+ * STATUS (March 2026): The FSM synthesis path (synthesize_strategy_from_oracle/4)
+ * is never called. execution_handler.pl always uses the 5-argument oracle-backed
+ * path, which wraps oracle calls rather than synthesizing from primitives. The
+ * claims below describe the 4-argument path's design intent, not what the system
+ * currently does. See SYNTHESIS_HONESTY.md for the full accounting.
  *
- * PHILOSOPHICAL GROUNDING:
+ * DESIGN INTENT (4-argument path, not currently active):
  * The machine receives from the oracle:
  *   - WHAT (the target result)
  *   - HOW (a natural language interpretation)
- * 
- * But it must synthesize its own:
+ *
+ * And would synthesize its own:
  *   - WHY (the FSM structure that makes the interpretation intelligible)
  *
- * This is computational hermeneutics: the machine makes sense of the
- * oracle's guidance by finding a rational structure (FSM) that both:
- *   1. Produces the target result (practical success)
- *   2. Makes the interpretation meaningful (theoretical coherence)
- *
- * ANTI-PATTERNS TO AVOID:
+ * ANTI-PATTERNS (aspirational — currently violated by the 5-argument path):
  * - No hard-coded strategy templates (violates emergence)
  * - No pattern matching on traces (innate knowledge)
  * - No lookup tables (defeats bootstrapping)
  *
- * SYNTHESIS APPROACH:
+ * SYNTHESIS APPROACH (4-argument path):
  * Build FSMs compositionally from grounded primitives:
  *   - successor/2 (add one tally)
  *   - predecessor/2 (remove one tally)
  *   - decompose_base10/3 (recognize structure)
  *   - Composition operators (sequencing, branching)
  *
- * 
- * 
  */
 :- module(fsm_synthesis_engine,
           [ synthesize_strategy_from_oracle/4,
@@ -124,7 +118,7 @@ synthesize_strategy_from_oracle(Goal, _FailedTrace, TargetResult, TargetInterpre
     % Log the learning event
     format('[Oracle-Backed Learning] ✓ Learned ~w strategy for ~w~n', [StrategyName, Op]),
     writeln('      System can now perform this operation by consulting expert.'),
-    writeln('      This represents genuine accommodation: capability expansion through crisis.').
+    writeln('      NOTE: This wraps the oracle call, not genuine synthesis from primitives.').
 
 %!      assert_oracle_backed_strategy(+Op, +StrategyName, +Interpretation) is det.
 %

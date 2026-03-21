@@ -45,12 +45,14 @@
 ]).
 
 % Load the strategy modules directly (qualified paths to Prolog/math/)
+:- use_module('Prolog/math/sar_add_counting_on', [run_counting_on/4]).
 :- use_module('Prolog/math/sar_add_cobo', [run_cobo/4]).
 :- use_module('Prolog/math/sar_add_chunking', [run_chunking/4]).
 :- use_module('Prolog/math/sar_add_rmb', [run_rmb/4]).
 :- use_module('Prolog/math/sar_add_rounding', [run_rounding/4]).
 
 % Subtraction strategies
+:- use_module('Prolog/math/sar_sub_counting_back', [run_counting_back/4]).
 :- use_module('Prolog/math/sar_sub_cobo_missing_addend', [run_cobo_ma/4]).
 :- use_module('Prolog/math/sar_sub_cbbo_take_away', [run_cbbo_ta/4]).
 :- use_module('Prolog/math/sar_sub_decomposition', [run_decomposition/4]).
@@ -127,6 +129,8 @@ query_oracle(Operation, StrategyName, Result, Interpretation) :-
 %       Executes a specific strategy directly by calling the appropriate module.
 %       This bypasses the buggy hermeneutic_calculator dispatcher.
 %
+execute_strategy(Num1, +, Num2, 'Counting On', Result, History) :-
+    sar_add_counting_on:run_counting_on(Num1, Num2, Result, History).
 execute_strategy(Num1, +, Num2, 'COBO', Result, History) :-
     sar_add_cobo:run_cobo(Num1, Num2, Result, History).
 execute_strategy(Num1, +, Num2, 'Chunking', Result, History) :-
@@ -137,6 +141,8 @@ execute_strategy(Num1, +, Num2, 'Rounding', Result, History) :-
     sar_add_rounding:run_rounding(Num1, Num2, Result, History).
 
 % Subtraction Strategies
+execute_strategy(Num1, -, Num2, 'Counting Back', Result, History) :-
+    sar_sub_counting_back:run_counting_back(Num1, Num2, Result, History).
 execute_strategy(Num1, -, Num2, 'COBO (Missing Addend)', Result, History) :-
     sar_sub_cobo_missing_addend:run_cobo_ma(Num1, Num2, Result, History).
 execute_strategy(Num1, -, Num2, 'CBBO (Take Away)', Result, History) :-
@@ -243,10 +249,19 @@ decompose_operation(Op, _, _, _) :-
 %       - Sufficient to constrain synthesis (guides the search)
 %       - Insufficient for template matching (doesn't give away the FSM)
 %
+extract_interpretation('Counting On', +, Num1, Num2, Result, _History, Interpretation) :-
+    format(atom(Interpretation),
+           'Count on from ~w by ones, ~w times, to reach ~w',
+           [Num1, Num2, Result]).
+
 extract_interpretation('COBO', +, Num1, Num2, Result, _History, Interpretation) :-
-    format(atom(Interpretation), 
-           'Count on from bigger: Start at ~w, count up ~w times to reach ~w',
-           [max(Num1,Num2), min(Num1,Num2), Result]).
+    % COBO = Count On by Bases and Ones: decompose B into tens and ones,
+    % count on by 10s, then count on by 1s. NOT simple counting on.
+    Bases is Num2 // 10,
+    Ones is Num2 mod 10,
+    format(atom(Interpretation),
+           'Count on by bases then ones: Start at ~w, count on ~w tens then ~w ones to reach ~w',
+           [Num1, Bases, Ones, Result]).
 
 extract_interpretation('RMB', +, Num1, Num2, Result, _History, Interpretation) :-
     % Determine which number was closer to base 10
@@ -271,6 +286,11 @@ extract_interpretation('Rounding', +, _Num1, _Num2, Result, _History, Interpreta
            [Result]).
 
 % Subtraction interpretations
+extract_interpretation('Counting Back', -, Minuend, Subtrahend, Result, _History, Interpretation) :-
+    format(atom(Interpretation),
+           'Count back from ~w by ones, ~w times, to reach ~w',
+           [Minuend, Subtrahend, Result]).
+
 extract_interpretation('COBO (Missing Addend)', -, Minuend, Subtrahend, Result, _History, Interpretation) :-
     format(atom(Interpretation),
            'Count on from subtrahend: Start at ~w, count up to ~w, the gap is ~w',
@@ -368,8 +388,8 @@ extract_interpretation(StrategyName, _Op, _Num1, _Num2, Result, _History, Interp
 %       @param Operation The operation type (add, subtract, multiply, divide)
 %       @param Strategies A list of strategy names (atoms)
 %
-list_available_strategies(add, ['COBO', 'RMB', 'Chunking', 'Rounding']).
-list_available_strategies(subtract, ['COBO (Missing Addend)', 'CBBO (Take Away)', 'Decomposition', 'Rounding', 'Sliding', 'Chunking A', 'Chunking B', 'Chunking C']).
+list_available_strategies(add, ['Counting On', 'RMB', 'COBO', 'Chunking', 'Rounding']).
+list_available_strategies(subtract, ['Counting Back', 'COBO (Missing Addend)', 'CBBO (Take Away)', 'Decomposition', 'Rounding', 'Sliding', 'Chunking A', 'Chunking B', 'Chunking C']).
 list_available_strategies(multiply, ['C2C', 'CBO', 'Commutative Reasoning', 'DR']).
 list_available_strategies(divide, ['Dealing by Ones', 'CBO (Division)', 'IDP', 'UCR']).
 list_available_strategies(fraction, ['PFS', 'FCS']).

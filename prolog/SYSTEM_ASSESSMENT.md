@@ -230,18 +230,28 @@ where the bones end and the soft tissue begins.
 ### What each system contributes to the skeleton
 
 **System B provides the functional bones:** Crisis detection → strategy
-acquisition → developmental progression. This works. `add(8,5)` fails with
-10-step budget, system learns COBO, `add(8,5)` succeeds. The 20 arithmetic
-strategies (SAR/SMR) are empirically grounded in Russell's research on children's
-reasoning. The ORR cycle is a working model of Piagetian accommodation. These are
-solid bones that assemble.
+acquisition → developmental progression. The ORR cycle completes: `add(8,5)`
+fails with 10-step budget, system consults oracle, `add(8,5)` succeeds on
+retry. The 20 arithmetic strategies (SAR/SMR) are empirically grounded in
+Carpenter and Fennema's Cognitively Guided Instruction (CGI) research on
+children's reasoning.
+
+**However:** The "acquisition" step is not genuine synthesis. The current
+synthesis path wraps oracle calls — the "learned strategy" calls the oracle
+again at runtime rather than building an FSM from primitives. The system
+memorizes the teacher's phone number. Additionally, strategy selection ignores
+developmental ordering: 8+5 learns COBO (a multi-digit strategy) because COBO
+is listed first, not because the problem demands it. See `SYNTHESIS_HONESTY.md`
+for the full accounting.
 
 **System A provides the normative cartilage:** Incompatibility relations,
 modal cost differentials, the Arche-Trace, dialectical rhythm transitions.
 These don't "walk" — they provide the formal structure that makes System B's
 learning something more than a lookup table with extra steps. Without System A,
-System B's learning is clever engineering. With System A, it becomes a claim
-about the normative structure of mathematical understanding.
+System B's learning is clever engineering — though currently, System B's
+learning *is* a lookup table with extra steps (see `SYNTHESIS_HONESTY.md`).
+With System A, it becomes a claim about the normative structure of
+mathematical understanding.
 
 **The three number representations are the joints:** Recollection (embodied,
 tally-based) → Peano (formal bridge) → Integer (normative/anaphoric). Each

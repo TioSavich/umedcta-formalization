@@ -96,6 +96,14 @@ transition(state(q_init, M, S, _), _, state(q_identify_chunk, M, S, 0), Interp) 
 
 % In q_identify_chunk, determine the next chunk of S to subtract.
 % The chunk is the largest part of S based on place value (e.g., hundreds, tens).
+%
+% LAZINESS NOTE (March 2026): This uses log/^ to find which place value the
+% leading digit occupies. A learner who has counted through 0-100 would know
+% that 234 "starts with two hundreds" by experience. The grounded version would
+% use repeated subtraction of the base to find the place (as decompose_base10
+% does). The log/^ shortcut is the most egregious lazy arithmetic in the
+% codebase — it uses transcendental functions to simulate place-value knowledge
+% that should come from counting experience.
 transition(state(q_identify_chunk, CV, S_Rem, _), Base, state(q_subtract_chunk, CV, S_Rem, Chunk), Interp) :-
     S_Rem > 0,
     Power is floor(log(S_Rem) / log(Base)),
