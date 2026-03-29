@@ -49,17 +49,17 @@ Recommendation: Start with option 2 (document the gap), ground them
 incrementally as time permits, prioritizing strategies that are central to
 the redesign (counting-on, COBO, RMB).
 
-### oracle_server.pl
+### teacher_server.pl
 Will be significantly redesigned per `03_ORACLE_REDESIGN.md`. Current version
 should be archived before modification.
 
 ### fsm_synthesis_engine.pl
-Currently wraps oracle calls. Will be replaced by projective validity tester.
+Currently wraps teacher calls. Will be replaced by projective validity tester.
 Archive current version.
 
 ### crisis_curriculum_primordial.txt and mathematical_curriculum.txt
 These curriculum files are tied to the old architecture's crisis model. They
-may be useful as reference for designing the new oracle's curriculum levels.
+may be useful as reference for designing the new teacher's curriculum levels.
 Keep in place but document their status.
 
 ## Code to keep as-is
@@ -125,7 +125,7 @@ umedcta-formalization/
 │   ├── grounded_utils.pl       (keep, audit)
 │   ├── meaning_field.pl        ← NEW
 │   ├── projective_validity.pl  ← NEW
-│   ├── oracle_server.pl        (redesign)
+│   ├── teacher_server.pl        (redesign)
 │   ├── number_words.pl         ← NEW
 │   ├── counting_traces.pl      ← NEW
 │   ├── reflection.pl           ← NEW
@@ -152,7 +152,7 @@ umedcta-formalization/
 2. Counting traces (`05_COUNTING_TRACES.md`) — extends existing grounded
    arithmetic
 3. Meaning fields (`01_MEANING_FIELDS.md`) — needs number-words
-4. Oracle redesign (`03_ORACLE_REDESIGN.md`) — needs meaning fields
+4. Teacher module (`03_ORACLE_REDESIGN.md`) — needs meaning fields
 5. Reflection mechanism (`06_REFLECTION.md`) — needs traces + meaning fields
 6. Projective validity (`02_PROJECTIVE_VALIDITY.md`) — needs all of the above
 7. PML integration (`07_PML_INTEGRATION.md`) — cross-cutting, integrate as

@@ -23,7 +23,7 @@ inferential roles within the system's meaning fields.
    not be semantically identical. The meaning field tracks the different
    interpretations.
 
-2. **Names are normatively assigned, not derived.** The oracle teaches that
+2. **Names are normatively assigned, not derived.** The teacher teaches that
    `s(s(0))` is called `two`. The system cannot derive this — it must be
    taught. The mapping from tally-sequence to number-word is conventional,
    not natural. This is the normative (n/1) layer.
@@ -38,7 +38,7 @@ inferential roles within the system's meaning fields.
 4. **Co-referentiality is earned, not given.** `two` and `one-plus-one` are
    NOT co-referential at system start. They become co-referential when the
    system discovers (through counting) that adding one to one produces the
-   same tally-sequence that `two` names, and the oracle endorses this. The
+   same tally-sequence that `two` names, and the teacher endorses this. The
    relaxation from "two separate things" to "the same thing" is the experience
    of symmetric intersubstitutability described in Ch. 2 (revised) — the
    "aha!" moment as differentiation relaxes.
@@ -56,7 +56,7 @@ inferential roles within the system's meaning fields.
 %% Number-word atoms: one, two, three, four, five, six, seven, eight, nine, ten
 %% (extend as needed for benchmark numbers: twenty, fifty, hundred)
 
-%% The oracle's naming table (asserted during Level 0 curriculum):
+%% The teacher's naming table (asserted during Level 0 curriculum):
 :- dynamic numeral_name/2.
 %% numeral_name(+TallySequence, +NumberWord)
 %% numeral_name(s(0), one).
@@ -76,9 +76,9 @@ word_to_tally(Word, Tally) :-
 ### learn_name/2
 ```prolog
 %% learn_name(+TallySequence, +NumberWord)
-%% Called by the oracle during Level 0. Asserts the naming convention.
+%% Called by the teacher during Level 0. Asserts the naming convention.
 %% Also creates initial meaning field entry for this numeral:
-%%   deposit(NumberWord, interp(named_count(TallySequence), oracle, endorsed))
+%%   deposit(NumberWord, interp(named_count(TallySequence), teacher, endorsed))
 ```
 
 ### resolve/2
@@ -94,7 +94,7 @@ word_to_tally(Word, Tally) :-
 %% True if ExprA and ExprB have been endorsed as co-referential in the
 %% meaning field. NOT the same as structural equality.
 %% e.g., co_referential(two, add(one, one)) succeeds only after the
-%% system has discovered and the oracle has endorsed this connection.
+%% system has discovered and the teacher has endorsed this connection.
 ```
 
 ## Constraints for implementers
@@ -125,7 +125,7 @@ word_to_tally(Word, Tally) :-
 
 ## Open questions
 
-- Should number-words be taught by the oracle for all numbers up to 100, or
+- Should number-words be taught by the teacher for all numbers up to 100, or
   only for benchmarks (1-10, 20, 25, 50, 100)? Teaching all 100 is
   philosophically honest (children do learn to name all of them) but tedious
   to implement. Benchmark-only is pragmatic.

@@ -12,7 +12,7 @@ architecture accumulates facts but has no reason to move.
 ### Three validity modes (pml_operators.pl)
 - `s/1`: Subjective — first-person, traces, embodied experience
 - `o/1`: Objective — third-person, Prolog's native arithmetic, the world
-- `n/1`: Normative — second-person, oracle's vocabulary, community norms
+- `n/1`: Normative — second-person, teacher's vocabulary, community norms
 
 ### Polarized modal operators
 - `comp_nec` (↓): Compressive necessity — fixation, narrowing, crystallizing
@@ -52,8 +52,8 @@ architecture accumulates facts but has no reason to move.
 | Meaning field state | PML state | Description |
 |---|---|---|
 | Dense, undifferentiated | `exp_poss` | Many possibilities, confusion |
-| Oracle rejects a claim | `comp_nec` | Ruling out, information, narrowing |
-| Oracle endorses a claim | Transition | Depends on what's endorsed |
+| Teacher rejects a claim | `comp_nec` | Ruling out, information, narrowing |
+| Teacher endorses a claim | Transition | Depends on what's endorsed |
 | New co-referentiality | `exp_nec` | Release of maintained difference |
 | System attempts projection | `comp_poss` | Temptation to fixate on a rule |
 | Projection fails | `comp_nec` | Forced narrowing, crisis |
@@ -67,10 +67,10 @@ architecture accumulates facts but has no reason to move.
    strategy's capacity. Crisis. Resource exhaustion or wrong answer.
    Choice point: let go of current approach, or fixate harder?
 3. **Letting-go** (`exp_nec(u')`): System releases old strategy, tries
-   projection into new context. If oracle endorses: sublation — richer
+   projection into new context. If teacher endorses: sublation — richer
    understanding that preserves the lesson of the crisis.
 4. **Temptation** (`comp_nec(neg(u))`): System doubles down on failing
-   strategy. Bad infinite — repeating the same wrong approach. The oracle's
+   strategy. Bad infinite — repeating the same wrong approach. The teacher's
    "no" should eventually force letting-go.
 
 ### The drive: Axiom 3 (Unsatisfiable Desire)
@@ -108,10 +108,10 @@ Eventually, resource exhaustion forces a crisis, which forces expansion.
 - Successful projection is `exp_nec` (sublation — yes, it extends)
 - Failed projection is `comp_nec` (forced narrowing — no, it doesn't)
 
-### With oracle (03)
-- Oracle operates at n/1 (normative)
-- Oracle's "no" is `comp_nec` in the normative domain
-- Oracle's "yes" can be either `comp_nec` (confirming a restriction) or
+### With teacher (03)
+- Teacher operates at n/1 (normative)
+- Teacher's "no" is `comp_nec` in the normative domain
+- Teacher's "yes" can be either `comp_nec` (confirming a restriction) or
   `exp_nec` (confirming a new connection) depending on what was validated
 
 ### With counting traces (05)
@@ -122,7 +122,7 @@ Eventually, resource exhaustion forces a crisis, which forces expansion.
 ### With reflection (06)
 - Reflection is compressive (examining, narrowing attention)
 - The cost of reflection is tracked in the PML's resource budget
-- Reflection outputs move from s/1 (trace-based pattern) to n/1 (oracle-endorsed
+- Reflection outputs move from s/1 (trace-based pattern) to n/1 (teacher-endorsed
   claim) — this is the s→n validity transition
 
 ## Constraints for implementers
@@ -130,10 +130,10 @@ Eventually, resource exhaustion forces a crisis, which forces expansion.
 - The PML is not decorative. Modal state must actually affect computation —
   what the system can access, what it costs, what happens on crisis.
 - Do not implement the full dialectical rhythm if it adds complexity without
-  illuminating anything. Start with: crisis detection → oracle interaction →
+  illuminating anything. Start with: crisis detection → teacher interaction →
   meaning field update. Add modal sophistication if it reveals something.
 - The three validity modes (s/o/n) must be trackable for every knowledge
-  item. An interpretation can be endorsed at n/1 (oracle said yes) but
+  item. An interpretation can be endorsed at n/1 (teacher said yes) but
   untested at o/1 (hasn't been checked against Prolog's arithmetic).
   Discrepancies between modes are interesting — they show where normative
   and objective validity diverge.
@@ -145,14 +145,14 @@ Eventually, resource exhaustion forces a crisis, which forces expansion.
 ## Open questions
 
 - The `ought-not` → `cannot` transition (deontic → alethic): how does the
-  system's repeated normative corrections ("the oracle keeps saying no")
+  system's repeated normative corrections ("the teacher keeps saying no")
   eventually become alethic knowledge ("this is impossible")? This transition
   is developmental and the formalization may not be able to capture it.
   Document where it breaks.
 - The intersubjective praxis module (`intersubjective_praxis.pl`) models
   multi-agent dynamics (aggression → crystallization, listening →
   liquefaction, mutual confession → forgiveness). Does any of this apply to
-  the single-agent learning system? Possibly not. But if the oracle is
+  the single-agent learning system? Possibly not. But if the teacher is
   treated as a genuine interlocutor (not just a lookup table), some of this
   machinery might become relevant.
 - The pragmatic axioms were designed for a different context (phenomenological

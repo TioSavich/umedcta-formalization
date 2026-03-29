@@ -22,7 +22,7 @@ support reflection but grounded enough that no arithmetic is smuggled in.
 3. **Counting is directional.** Counting forward (successor) and counting
    backward (predecessor) are distinct activities that produce distinct traces.
    The system should not assume they are inverses until it discovers this
-   through experience and the oracle endorses it.
+   through experience and the teacher endorses it.
 
 4. **Place value emerges from counting, not from decomposition.** The existing
    `decompose_base10/3` treats place value as a utility function. In the

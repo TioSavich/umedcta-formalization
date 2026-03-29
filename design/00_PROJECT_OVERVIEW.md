@@ -5,8 +5,8 @@
 Planning documents for redesigning how the Prolog formalization's arithmetic
 strategies connect to one another. The current system has ~25 strategy automata
 that operate as islands — each takes inputs, runs transitions, produces a result,
-but nothing one strategy learns is available to another. The oracle masks this by
-handing back answers. The synthesis engine wraps oracle calls rather than building
+but nothing one strategy learns is available to another. The teacher masks this by
+handing back answers. The synthesis engine wraps teacher calls rather than building
 from primitives. The system demonstrates *that* crisis-driven learning works as
 an architecture, but not *how* one piece of mathematical knowledge becomes
 another.
@@ -30,7 +30,7 @@ paradox:
 Each numeral has a **meaning field** — a set of compossible interpretations that
 starts dense (confusion) and acquires internal structure through interaction.
 `two` begins with a meaning field containing one element (the counting trace).
-Oracle interactions depopulate the field (ruling out bad inferences) and relax
+Teacher interactions depopulate the field (ruling out bad inferences) and relax
 it (accepting new co-referentialities). The field doesn't just shrink; it
 acquires AND/OR/XOR structure between elements.
 
@@ -53,9 +53,10 @@ falsifiable at three points (Savich, 2022, Ch. 3):
   student would do with new inputs?)
 - The inference Qa so Qb (is the inference from original to new context good?)
 
-The oracle's role is to **validate or reject projections** — not to give answers,
-not to name things, but to test whether rules extend across contexts. This is
-normative scorekeeping.
+The teacher's role is to **recognize when projections are worth attempting**
+and to **validate or reject** the student's results. The student's prior
+activity creates the conditions for the teacher's recognition. The teacher
+says "look at this"; the student looks again; the teacher says yes or no.
 
 ### 3. Three modes of validity (Habermas, via PML)
 
@@ -64,7 +65,7 @@ Every numeral and every strategy simultaneously raises three validity claims:
 - **Objective (o/1)**: Prolog's native arithmetic. The world-check. `2 + 3 =:= 5`
   just works. Inert but authoritative. The "stick-in-itself" from Brandom's
   bent-stick example.
-- **Normative (n/1)**: The oracle's vocabulary and rules. The community's
+- **Normative (n/1)**: The teacher's vocabulary and rules. The community's
   scorekeeping. Material inferences, incompatibilities, what counts as a good
   move. The second-person layer.
 - **Subjective (s/1)**: The counting trace. The embodied experience. The ability
@@ -79,7 +80,7 @@ maps onto the deontic→alethic shift in the PML.
 
 Learning is simultaneously:
 
-- **Depopulation** (compressive, `comp_nec`): The oracle's "no" rules out
+- **Depopulation** (compressive, `comp_nec`): The teacher's "no" rules out
   alternatives, reducing 2^n confusion toward determinate structure.
 - **Relaxation** (expansive, `exp_nec`): New co-referentialities are accepted.
   `two` becomes compatible with `one-plus-one`, `three-minus-one`,
@@ -107,9 +108,9 @@ not resolve it.
 - FSM engine (`fsm_engine.pl`) — unified execution for strategy automata
 
 ### Exists, needs significant redesign:
-- Oracle server (`oracle_server.pl`) — currently gives answers; should validate
+- Teacher server (`teacher_server.pl`) — currently gives answers; should validate
   projections
-- Synthesis engine (`fsm_synthesis_engine.pl`) — currently wraps oracle calls;
+- Synthesis engine (`fsm_synthesis_engine.pl`) — currently wraps teacher calls;
   should implement projective validity protocol
 - Meta-interpreter (`meta_interpreter.pl`) — crisis detection works; needs
   meaning field integration
@@ -122,7 +123,7 @@ not resolve it.
 - Reflection mechanism — how counting traces become structural facts (the PP
   algorithmic elaboration step)
 - Number-word layer — atoms like `one`, `two`, `three` that are normatively
-  assigned by the oracle and carry no built-in arithmetic
+  assigned by the teacher and carry no built-in arithmetic
 - More/less relational vocabulary — `more(five, three, two)` as the first
   asymmetric predicate over numbers
 - Level-transition mechanism — V→P→V' cycle with generated (not prescribed)
@@ -163,9 +164,9 @@ We do not yet have a satisfactory answer to this. Possible approaches:
 2. **Diagonalization over the inference/meaning field** — see Carspecken (2013)
    on recursion and self-reference in meaning. This may be the most
    philosophically appropriate approach but is difficult to implement.
-3. **Oracle-prompted reflection** — the oracle asks questions that force the
+3. **Teacher-prompted reflection** — the teacher asks questions that force the
    system to examine its own traces. The conversation IS the reflection. This is
-   implementable but shifts the intelligence to the oracle's question-selection.
+   implementable but shifts the intelligence to the teacher's question-selection.
 
 Any of these may turn out to be the right approach, or none of them. The point of
 the formalization is partly to discover where reflection resists formalization.
@@ -176,7 +177,7 @@ That breakdown is itself a finding.
 - `00_PROJECT_OVERVIEW.md` — this file
 - `01_MEANING_FIELDS.md` — meaning field module design
 - `02_PROJECTIVE_VALIDITY.md` — projective validity tester design
-- `03_ORACLE_REDESIGN.md` — oracle as normative scorekeeper
+- `03_ORACLE_REDESIGN.md` — teacher module (recognition-triggered interaction)
 - `04_NUMBER_WORDS.md` — number-word layer and numeral semantics
 - `05_COUNTING_TRACES.md` — counting engine and trace production
 - `06_REFLECTION.md` — reflection mechanism (the hard problem)

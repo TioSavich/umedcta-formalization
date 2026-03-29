@@ -16,7 +16,7 @@ substrate between strategies — it is what strategies deposit into and draw fro
 
 2. **Density represents confusion.** A meaning field with many undifferentiated
    elements (connected by inclusive OR) represents a state of confusion.
-   Learning is the depopulation of the field through information — the oracle's
+   Learning is the depopulation of the field through information — the teacher's
    "no" rules out elements. The combinatorics of confusion grow as 2^n where n
    is the number of vocabularies in play (Savich, 2022, Ch. 3).
 
@@ -76,13 +76,13 @@ substrate between strategies — it is what strategies deposit into and draw fro
 ```
 
 Philosophical constraint: depositing an interpretation does NOT make it
-endorsed. It enters the field as untested — the oracle must validate it. This
+endorsed. It enters the field as untested — the teacher must validate it. This
 prevents the system from "learning" by mere accumulation.
 
 ### endorse/2
 ```prolog
 %% endorse(+Numeral, +Interp)
-%% Mark an interpretation as endorsed. Called by oracle after validation.
+%% Mark an interpretation as endorsed. Called by teacher after validation.
 %% Changes connective from 'or' to 'and' with other endorsed interpretations
 %% of the same numeral (they are now compossible).
 ```
@@ -91,7 +91,7 @@ prevents the system from "learning" by mere accumulation.
 ```prolog
 %% reject(+Numeral, +Interp)
 %% Mark as rejected. Changes connective to 'xor' with endorsed entries.
-%% This is the oracle's "no" — the informative signal.
+%% This is the teacher's "no" — the informative signal.
 ```
 
 ### query_field/3
@@ -115,9 +115,9 @@ prevents the system from "learning" by mere accumulation.
   module. All numeric content must come from grounded representations or
   number-word atoms.
 - Do NOT pre-populate meaning fields. They must be empty at system start and
-  grow only through counting activity and oracle interaction.
+  grow only through counting activity and teacher interaction.
 - Do NOT assume AND/OR/XOR structure is fixed. It must be revisable through
-  new oracle interactions (non-monotonicity).
+  new teacher interactions (non-monotonicity).
 - Document honestly where the implementation simplifies the philosophical
   concept. The meaning field as experienced is holistic and embodied; the
   module is a reconstruction.
@@ -125,7 +125,7 @@ prevents the system from "learning" by mere accumulation.
 ## Open questions
 
 - How should meaning fields interact with the PML's three validity modes?
-  An interpretation endorsed at the normative level (oracle says yes) may not
+  An interpretation endorsed at the normative level (teacher says yes) may not
   yet be endorsed at the objective level (Prolog's `2` hasn't confirmed it).
   The subjective level (the trace) is always present as Origin.
 - Should meaning fields have a maximum density before forcing depopulation?

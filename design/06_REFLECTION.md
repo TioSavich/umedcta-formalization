@@ -28,37 +28,37 @@ pattern.
 
 What does "notice" mean computationally? This is the hard problem. Options:
 
-## Approach 1: Oracle-prompted reflection
+## Approach 1: Teacher-prompted reflection
 
-The oracle asks questions that force the system to examine its traces:
+The teacher asks questions that force the system to examine its traces:
 
 ```
-Oracle: "You counted from zero to ten. You also counted from zero to three
+Teacher: "You counted from zero to ten. You also counted from zero to three
          and from three to ten. What do you notice?"
 System: [examines traces, finds shared endpoints]
 System: "The trace from zero to ten passes through three."
-Oracle: "Yes. What does that tell you about ten, three, and seven?"
+Teacher: "Yes. What does that tell you about ten, three, and seven?"
 System: "ten is three-and-seven?"
-Oracle: "Yes." [endorses partition(ten, three, seven)]
+Teacher: "Yes." [endorses partition(ten, three, seven)]
 ```
 
-The conversation IS the reflection. The oracle's questions structure what the
-system examines. The system does the pattern-matching; the oracle directs
+The conversation IS the reflection. The teacher's questions structure what the
+system examines. The system does the pattern-matching; the teacher directs
 attention.
 
-**Advantages**: Implementable. Philosophically coherent — the oracle-as-teacher
+**Advantages**: Implementable. Philosophically coherent — the teacher-as-teacher
 prompts reflection without doing the reflecting. The Socratic method.
 
-**Disadvantages**: Shifts intelligence to question-selection. The oracle must know
+**Disadvantages**: Shifts intelligence to question-selection. The teacher must know
 which questions to ask, which means it implicitly knows the answers. This is
-less problematic than the current oracle (which gives answers directly) but still
+less problematic than the current teacher (which gives answers directly) but still
 concentrates knowledge in the teacher.
 
 **Implementation sketch**:
 ```prolog
-%% oracle_reflection_prompt(+Level, +Context, -Prompt)
+%% teacher_reflection_prompt(+Level, +Context, -Prompt)
 %% Level 2 prompts (partition discovery):
-oracle_reflection_prompt(2, traces_available(From, Via, To), Prompt) :-
+teacher_reflection_prompt(2, traces_available(From, Via, To), Prompt) :-
     Prompt = check_shared_endpoints(From, Via, To).
 
 %% The system responds by querying its own trace database:
@@ -141,17 +141,23 @@ to capture genuine self-reference. The system can count, but it cannot fully
 capture what counting means without stepping outside counting. This is the
 Hegelian Infinite that the manuscript is about.
 
-## Approach 4: Hybrid (recommended starting point)
+## Approach 4: Recognition-triggered reflection (recommended starting point)
 
-Combine approaches 1 and 2:
-- Hard-coded reflection templates provide the structure
-- Oracle prompts trigger when to apply them
-- Results are deposited into meaning fields as untested, then validated by oracle
+Combine approaches 1 and 2 under the recognition-trigger framing:
+- The student acts (counts, computes, makes errors)
+- The teacher monitors the student's trace database for recognizable patterns
+  (hard-coded recognition templates represent the teacher's expertise)
+- When a pattern is recognized, the teacher prompts the student to look
+  again at its own work
+- The student applies its own operations where the teacher pointed
+- Results are deposited into meaning fields as untested, then validated
+  by teacher
 
-This is honest about what the formalization can do (template-based pattern
-extraction) and where the intelligence lives (oracle question-selection and
-validation). It doesn't overclaim. The templates are explicitly documented as
-programmer-encoded patterns, not autonomous discoveries.
+The intelligence lives in the **relationship** — the teacher's capacity to
+recognize patterns in the student's work, and the student's capacity to
+look again when prompted. Neither alone produces learning. The recognition
+templates represent what a teacher would notice, not what the system
+discovers autonomously.
 
 Later work can explore Approach 3 as an extension, with the explicit goal of
 finding where it breaks.
@@ -162,7 +168,7 @@ finding where it breaks.
   templates encode the programmer's knowledge of what patterns exist. The
   system applies those templates to its own traces, which is non-trivial,
   but it is not discovery in the philosophical sense.
-- **All reflection outputs must be deposited as untested.** The oracle validates
+- **All reflection outputs must be deposited as untested.** The teacher validates
   them. The system proposes; the community endorses.
 - **Reflection templates must operate only on stored traces.** They cannot
   access Prolog's native arithmetic or any knowledge not earned through

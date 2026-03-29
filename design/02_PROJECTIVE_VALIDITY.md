@@ -135,9 +135,9 @@ incompatibility.
 ## Open questions
 
 - How does the system decide which projections to test? This is a curriculum
-  question. The oracle could prompt: "Try using your counting-on strategy on
+  question. The teacher could prompt: "Try using your counting-on strategy on
   this subtraction problem." Or the system could try projections when a crisis
-  occurs and the oracle validates/rejects the attempt.
+  occurs and the teacher validates/rejects the attempt.
 - Can projective validity be graded rather than binary? A projection might
   be "mostly good" — working for some inputs but not others. This connects to
   the non-monotonicity of material inference.
